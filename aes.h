@@ -1,6 +1,6 @@
 class AES {
  public:
-  typedef State byte[4][4];
+  typedef State uint8_t[4][4];
 
   // TODO.
   AES();

@@ -10,18 +10,18 @@ public class KeyUtility {
  private:
   // TODO: read about key storage in memory.
   union key {
-    char[128] key128;
-    char[192] key192;
-    char[256] key256;
+    uint8_t[128] key128;
+    uint8_t[192] key192;
+    uint8_t[256] key256;
   }
 
   // Performs the S-box substitution on each of the bytes in the input word.
   // Would call sbox() 4 times.
-  word subWord(const word w);
+  uint32_t subWord(const uint32_t w);
 
   // Takes a 4-byte word [a0,a1,a2,a3] and returns [a1,a2,a3,a0].
-  word rotWord(const word w);
+  uint32_t rotWord(const uint32_t w);
 
   // Returns a word [x^{n-1},{00},{00},{00}].
-  word rcon(const uint n);
+  uint32_t rcon(const uint32_t n);
 };
