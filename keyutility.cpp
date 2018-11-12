@@ -10,12 +10,26 @@ uint32_t KeyUtility::rcon(const uint n) {
 }
 
 uint32_t KeyUtility::subWord(const uint32_t w){
-  uint8_t result[4];
+  uint8_t b[4],s[4];
+  uint32_t result=0x00000000;
 
-result[0] = (value & 0x000000ff);
-result[1] = (value & 0x0000ff00) >> 8;
-result[2] = (value & 0x00ff0000) >> 16;
-result[3] = (value & 0xff000000) >> 24;
+  b[0] = (w & 0x000000ff);
+  b[1] = (w & 0x0000ff00) >> 8;
+  b[2] = (w & 0x00ff0000) >> 16;
+  b[3] = (w & 0xff000000) >> 24;
+
+  for(int i =0;i<4;i++){
+    s[i]=sbox(b[i]);
+  }
+
+  for(int i =0;i<3;i++){
+    result = result^s[i];
+    result<<8;
+  }
+
+  result=result^s[3];
+
+  return result;
 
 }
 uint32_t KeyUtility::rotWord(const uint32_t w){
