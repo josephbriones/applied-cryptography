@@ -84,3 +84,7 @@ void invShiftRows(const State &state)
     state = n;
     n.clear(); //clears data in memory. may not be needed
 }
+
+  void addRoundKey(const State &state, const uint round){
+    
+  }

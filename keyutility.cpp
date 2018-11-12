@@ -2,10 +2,16 @@
 #include "keyutility.h"
 
 uint32_t KeyUtility::rcon(const uint n) {
-  byte b = 2;
+  uint8_t b = 2;
+  uint32_t result = 0x00000000;
   for (uint i = 0; i < n-1; ++i) {
     b = xtimes(b);
   }
+
+  result = result^b;
+  result = result << 24;
+
+  return result;
 
 }
 
@@ -32,6 +38,8 @@ uint32_t KeyUtility::subWord(const uint32_t w){
   return result;
 
 }
+
+//Takes cares of the cyclic permutation
 uint32_t KeyUtility::rotWord(const uint32_t w){
 
   uint32_t temp = w >> 24;
@@ -42,7 +50,8 @@ uint32_t KeyUtility::rotWord(const uint32_t w){
 
 }
 
-uint32_t KeyUtility::expandKey(const char[] key, uint roundNum){
+
+uint32_t KeyUtility::expandKey(const uint8_t[] key,const uint32_t[] w,  uint wordinkey){
   uint32_t temp;
   int i = 0;
   while

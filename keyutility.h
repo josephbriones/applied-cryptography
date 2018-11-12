@@ -5,14 +5,14 @@ public class KeyUtility {
   KeyUtility();  // dev/rand things.
 
   // Returns a 4-byte word representing the key column used by AddRoundKey().
-  uint32_t expandKey(const char[] key, uint roundNum);
+  uint32_t expandKey(const uint8_t[] key,const uint32_t[] w, uint wordinkey);
 
  private:
   // TODO: read about key storage in memory.
   union key {
-    uint8_t[128] key128;
-    uint8_t[192] key192;
-    uint8_t[256] key256;
+    uint8_t[16] key128;
+    uint8_t[24] key192;
+    uint8_t[32] key256;
   }
 
   // Performs the S-box substitution on each of the bytes in the input word.
