@@ -5,7 +5,7 @@ public class KeyUtility {
   KeyUtility();  // dev/rand things.
 
   // Returns a 4-byte word representing the key column used by AddRoundKey().
-  word expandKey(const char[] key, uint roundNum);
+  uint32_t expandKey(const char[] key, uint roundNum);
 
  private:
   // TODO: read about key storage in memory.
