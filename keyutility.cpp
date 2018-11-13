@@ -50,9 +50,33 @@ uint32_t KeyUtility::rotWord(const uint32_t w){
 
 }
 
-
-uint32_t KeyUtility::expandKey(const uint8_t[] key,const uint32_t[] w,  uint wordinkey){
+//initialise w somewhere to all 0s
+uint32_t KeyUtility::expandKey(const uint8_t[] key, uint wordinkey, uint index){
+  //uint Nb, Nr;
+  uint32_t w[index];
   uint32_t temp;
-  int i = 0;
-  while
+  uint i = 0;
+  while(i<wordinkey){
+    for(int j =4*i;j<((4*i)+3);j++){
+       w[i]= w[i]^key[j];
+       w[i]<<8;
+    }
+    w[i]=w[i]^key[(4*i)+3];
+    i++;
+  }
+
+  i=wordinkey;
+  //where is Nb and Nr
+  while (i<index/*<(Nb*(Nr+1))*/) {
+    temp = w[i-1];
+    if(i%wordinkey==0){
+      temp = subWord(rotWord(temp)) ^ rcon(i/wordinkey);
+    }
+    else if(wordinkey>6 && i%wordinkey==4){
+      temp = subWord(temp);
+    }
+    w[i]=w[i-wordinkey] ^ temp;
+    i++;
+  }
+  return w[index-1];
 }

@@ -1,4 +1,4 @@
-/*
+#include "keyutility.h"/*
  Joseph notes for subByte() :
 
  // TODO: function for INVERSE sbox calculations. Same as sbox in algebra.h but using figure 14.
@@ -86,5 +86,22 @@ void invShiftRows(const State &state)
 }
 
   void addRoundKey(const State &state, const uint round){
-    
+    KeyUtility k;
+    //how to access the union key
+    uint8_t n[4][4] = state;
+    for(int i = 0; i<state.size(); ++i){
+        for(int j = 0; j<state[i].size(); ++j){
+          //discuss the arguments to pass in expandKey
+          uint32_t wtemp = k.expandKey()
+          //how do you xor the word with a column
+          uint8_t b[4];
+          b[0] = (wtemp & 0x000000ff);
+          b[1] = (wtemp & 0x0000ff00) >> 8;
+          b[2] = (wtemp & 0x00ff0000) >> 16;
+          b[3] = (wtemp & 0xff000000) >> 24;
+          n[i][j] = state[i][j] ^ b[j];
+        }
+      }
+      state = n;
+      n.clear();
   }
