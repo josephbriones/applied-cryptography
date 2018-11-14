@@ -19,6 +19,11 @@ uint8_t Algebra::xtimes(const uint8_t b) {
   return result;
 }
 
+uint8_t Algebra::bytetimes(const uint8_t b1, const uint8_t b2) {
+  // Simply call the internal version that uses bytePolys.
+  return bytetimes(bytetopoly(b1), bytetopoly(b2));
+}
+
 uint8_t Algebra::sbox(const uint8_t b) {
   // First, calculate the multiplicative inverse of the byte b in GF(2^8) using
   // the Extended Euclidean algorithm for polynomials.
@@ -35,9 +40,16 @@ uint8_t Algebra::sbox(const uint8_t b) {
 }
 
 uint8_t Algebra::invSbox(const uint8_t b) {
+  // First, apply the inverse S-box affine transformation over GF(2).
+  bytePoly p = bytetopoly(b);
+  bytePoly affine;
+  for (uint i = 0; i < affine.size(); ++i) {
+    affine[i] = p[(i + 2) % 8] ^ p[(i + 5) % 8] ^ p[(i + 7) % 8];
+  }
+  uint8_t a = polytobyte(affine) ^ 5;
 
-
-  return 0;  // TODO.
+  // Then return the multiplicative inverse.
+  return multinv(a);
 }
 
 Algebra::bytePoly Algebra::bytetopoly(uint8_t b) {

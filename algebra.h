@@ -12,6 +12,11 @@ class Algebra {
   // m(x), the irreducible polynomial for AES.
   static uint8_t xtimes(const uint8_t b);
 
+  // Given two bytes (uint8_t) b1 and b2 expressing polynomials b1(x) and b2(x)
+  // in GF(2^8) with 0/1 coefficients, this function computes b1(x) * b2(x) mod
+  // m(x), where m(x) is the irreducible polynomial for AES.
+  static uint8_t bytetimes(const uint8_t b1, const uint8_t b2);
+
   // Performs the S-box substitution by (i) finding the multiplicative inverse
   // and (ii) applying the AES affine transformation.
   static uint8_t sbox(const uint8_t b);
@@ -49,9 +54,8 @@ class Algebra {
   // above. polytimes() takes two vectors of Boolean values representing the 0/1
   // coefficients of polynomials p1(x) and p2(x) and computes the 0/1
   // coefficients of p1(x) * p2(x). polydiv() takes p1(x) and p2(x) and computes
-  // p1(x) / p2(x) = q(x) remainder r(x). bytetimes() is similar to polytimes(),
-  // but its inputs are bytes b1 and b2 and it returns b1(x) * b2(x) mod m(x),
-  // where m(x) is the irreducible polynomial for AES.
+  // p1(x) / p2(x) = q(x) remainder r(x). bytetimes() is the private version of
+  // the bytetimes() function above that takes bytes (uint8_t) as inputs.
   static poly polytimes(const poly& p1, const poly& p2);
   static void polydiv(poly p1, const poly& p2, poly* q, poly* r);
   static uint8_t bytetimes(const bytePoly& b1, const bytePoly& b2);
