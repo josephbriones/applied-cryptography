@@ -3,34 +3,35 @@ class AES {
   typedef State uint8_t[4][4];
 
   // TODO.
-  AES();
+  AES(uint nk);
 
   // TODO.
-  encrypt(KeyUtility * keyutil);
-  decrypt(KeyUtility * keyutil);
+  encrypt();
+  decrypt();
 
  private:
   State state;
+  KeyUtility keyutil;
 
-  // TODO: Joseph.
-  void subBytes(const State &state);
+  // TODO[Joseph].
+  void subBytes();
 
-  // TODO: Joseph.
-  void shiftRows(const State &state);
+  // TODO[Joseph].
+  void shiftRows();
 
-  // TODO[Josh]: This is going to need a temp that we'll need to delete().
-  void mixColumns(const State &state);
+  // TODO[Joseph]: This is going to need a temp that we'll need to delete().
+  void mixColumns();
 
   // TODO[Anya]: calls expandKey() and xor() to XOR the current key schedule with the
   // columns of the state.
-  void addRoundKey(const State &state, const uint round);
+  void addRoundKey(const uint round);
 
-  // TODO: Joseph.
-  void invShiftRows(const State &state);
+  // TODO[Joseph].
+  void invShiftRows();
 
-  // TODO: Joseph.
-  void invSubBytes(const State &state);
+  // TODO[Joseph].
+  void invSubBytes();
 
-  // TODO: Josh.
-  void invMixColumns(const State &state);
+  // TODO[Joseph].
+  void invMixColumns();
 };

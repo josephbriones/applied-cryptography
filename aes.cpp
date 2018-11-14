@@ -1,4 +1,12 @@
-#include "keyutility.h"/*
+#include "aes.h"
+#include "algebra.h"
+#include "keyutility.h"
+
+AES::AES(uint nk) {
+  keyutil = new KeyUtility(nk);
+}
+
+/*
  Joseph notes for subByte() :
 
  // TODO: function for INVERSE sbox calculations. Same as sbox in algebra.h but using figure 14.
@@ -30,7 +38,7 @@
  This is a function in algebra.h
 
  */
-void subBytes(const State &state){
+void AES::subBytes() {
     for(int i = 0; i<state.size(); ++i){
         for(int j = 0; j<state[i].size(); ++j){
             state[i][j] = sbox(multInverse(state[i][j])); //multInverse -> sbox
@@ -38,7 +46,7 @@ void subBytes(const State &state){
     }
 }
 
-void invSubBytes(const State &state){
+void AES::invSubBytes() {
     for(int i = 0; i<state.size(); ++i){
         for(int j = 0; j<state[i].size(); ++j){
             state[i][j] = multInverse(isbox(state[i][j])); //inverse sbox -> multInverse
@@ -62,8 +70,7 @@ void invSubBytes(const State &state){
      shifts all elements to the RIGHT 2
 
  */
-void shiftRows(const State &state)
-{
+void AES::shiftRows() {
     uint8_t n[4][4] = state; //need copy of state since cannot be done inplace
     for(int i = 0; i<state.size(); ++i){
         for(int j = 0; j<state[i].size(); ++j){
@@ -73,8 +80,8 @@ void shiftRows(const State &state)
     state = n;
     n.clear(); //clears data in memory. may not be needed
 }
-void invShiftRows(const State &state)
-{
+
+void AES::invShiftRows() {
     uint8_t n[4][4] = state; //need copy of state since cannot be done inplace
     for(int i = 0; i<state.size(); ++i){
         for(int j = 0; j<state[i].size(); ++j){
@@ -85,23 +92,23 @@ void invShiftRows(const State &state)
     n.clear(); //clears data in memory. may not be needed
 }
 
-  void addRoundKey(const State &state, const uint round){
-    KeyUtility k;
-    //how to access the union key
-    uint8_t n[4][4] = state;
-    for(int i = 0; i<state.size(); ++i){
-        for(int j = 0; j<state[i].size(); ++j){
-          //discuss the arguments to pass in expandKey
-          uint32_t wtemp = k.expandKey()
-          //how do you xor the word with a column
-          uint8_t b[4];
-          b[0] = (wtemp & 0x000000ff);
-          b[1] = (wtemp & 0x0000ff00) >> 8;
-          b[2] = (wtemp & 0x00ff0000) >> 16;
-          b[3] = (wtemp & 0xff000000) >> 24;
-          n[i][j] = state[i][j] ^ b[j];
-        }
-      }
-      state = n;
-      n.clear();
+void AES::addRoundKey(const uint round) {
+  KeyUtility k;
+  //how to access the union key
+  uint8_t n[4][4] = state;
+  for(int i = 0; i<state.size(); ++i){
+    for(int j = 0; j<state[i].size(); ++j){
+      //discuss the arguments to pass in expandKey
+      uint32_t wtemp = k.expandKey()
+      //how do you xor the word with a column
+      uint8_t b[4];
+      b[0] = (wtemp & 0x000000ff);
+      b[1] = (wtemp & 0x0000ff00) >> 8;
+      b[2] = (wtemp & 0x00ff0000) >> 16;
+      b[3] = (wtemp & 0xff000000) >> 24;
+      n[i][j] = state[i][j] ^ b[j];
+    }
   }
+  state = n;
+  n.clear();
+}
