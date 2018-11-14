@@ -14,7 +14,7 @@ class ModeOfOp {
   virtual std::string encrypt(const std::string plaintxt) = 0;
   virtual std::string decrypt(const std::string ciphertxt) = 0;
 
- private:
+ protected:
   // Convenience typedef for representing blocks as vectors of bytes (uint8_t).
   // The correct size is maintainted by the mode of operation's "blockSize".
   typedef std::vector<uint8_t> Block;
@@ -24,14 +24,17 @@ class ModeOfOp {
   uint blockSize;
   Block IV;
 
-  // Pure virtual function for generating the initialization vector; must be
-  // overridden by child classes.
-  virtual void generateIV() = 0;
+  // Functions for generating unpredictable or unique initialization vectors.
+  // Unpredictable IVs are obtained through random number generation, while
+  // uniqueIVs are started at a random seed and incremented in large enough
+  // step sizes to guarantee uniqueness. (TODO: may need to fix latter).
+  Block unpredictableIV();
+  Block uniqueIV();
 
   // Given a vector of blocks, pad() performs PKCS#7 padding (i.e., it appends
   // X = blockSize - (|text| mod blockSize) copies of X, unless X = 0, in which
   // case blockSize copies of blockSize are appended instead). invPad() simply
   // does the opposite, removing any padding.
   void pad(const std::vector<Block>& blocks);
-  void invPad(const std::std::vector<Block>& blocks);
+  void invPad(const std::vector<Block>& blocks);
 };
