@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "aes.h"
+// #include "aes.h"
 #include "algebra.h"
 
 int main(int argc, char* argv[]) {
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   std::string modeStr = argv[3];
 
   // Instantiate the AES and mode of operation objects.
-  AES * aes = new AES(nk);
+  // AES * aes = new AES(nk);
   // TODO: instantiate ModeOfOp after deciding how inheritance will work.
 
   // TODO: encrypt the plaintext according to the mode of operation.

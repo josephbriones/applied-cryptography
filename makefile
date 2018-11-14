@@ -1,6 +1,6 @@
 CC = g++
 FLAGS = -Wall -std=c++11
-SOURCES = aes_main.cpp
+SOURCES = algebra.cpp aes_main.cpp
 EXE = aes_main
 
 all:
