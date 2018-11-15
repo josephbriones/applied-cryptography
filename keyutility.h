@@ -1,6 +1,6 @@
 // TODO[Anya].
 
-public class KeyUtility {
+class KeyUtility {
  public:
   KeyUtility(uint nk);  // dev/rand things.
 

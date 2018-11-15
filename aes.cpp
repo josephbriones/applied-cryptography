@@ -2,94 +2,100 @@
 #include "algebra.h"
 #include "keyutility.h"
 
-AES::AES(uint nk) {
-  keyutil = new KeyUtility(nk);
+AES::AES(unsigned int nk)
+{
+  //keyutil = new KeyUtility(nk);
 }
 
-/*
- Joseph notes for subByte() :
+void AES::encrypt(){
+    // Cipher encryption scheme reference in Figure 5 of standard documentation
+    addRoundKey(0);
+    for(int i = 1; i <(nk+6)-1; i++){
+        subBytes();
+        shiftRows();
+        mixColumns();
+        addRoundKey(i);
+    }
+    subBytes();
+    shiftRows();
+    addRoundKey(nk+6);
+}
+void AES::decrypt(){
+    // Cipher decryption scheme reference in Figure 12 of standard documentation
+    addRoundKey(nk+6);
+    for(int i = (nk+6)-1; i > 0; i++){
+        invShiftRows();
+        invSubBytes();
+        addRoundKey(i);
+        invMixColumns();
+    }
+    invSubBytes();
+    invShiftRows();
+    addRoundKey(0);
+}
 
- // TODO: function for INVERSE sbox calculations. Same as sbox in algebra.h but using figure 14.
-
- subBytes() transformation is a non-linear byte substitution that operates independently
- on each byte of the State using a substitution table (S-box).
-
- State consists of four rows of bytes, each containing Nb bytes. each individual byte
- has two indices, with its row number r in the range 0 <= r < 4 and its column number c in the
- range 0 <= c < Nb. s[r, c]
-
- 1. Take the multiplicative inverse in the finite field GF(2^(8)), described in Sec. 4.2; the
- element {00} is mapped to itself.
-
- Properties: b(x)a(x) + m(x)c(x) = 1
- a(x) • b(x) mod m(x) = 1,
- b^(-1)(x) = a(x) mod m(x) .
-
- m(t) = x^(8) + x^(4) + x^(3) + x +1,
-
- byte multInverse(byte b):
- 1. byte -> polynomial representation
- 2. extended Euclidean algorithm to solve a(x) & c(x)
- 3. calculate b^(-1)(x) using a(x) mod m(x)
- 4. polynomial representation -> byte
- 5. return byte
-
- 2. Apply affine transformation (over GF(2)): Computation in matrix form
- This is a function in algebra.h
-
- */
 void AES::subBytes() {
-    for(int i = 0; i<state.size(); ++i){
-        for(int j = 0; j<state[i].size(); ++j){
-            state[i][j] = sbox(multInverse(state[i][j])); //multInverse -> sbox
+    // Perform a independent byte substitution using the substitution table (S-Box)
+    for(int i = 0; i<4; ++i){
+        for(int j = 0; j<4; ++j){
+            state[i][j] = algebra.sbox(state[i][j]); 
         }
     }
 }
 
 void AES::invSubBytes() {
-    for(int i = 0; i<state.size(); ++i){
-        for(int j = 0; j<state[i].size(); ++j){
-            state[i][j] = multInverse(isbox(state[i][j])); //inverse sbox -> multInverse
+    // Perform a independent byte substitution using the inverse substitution 
+    // table (inverse S-Box).
+    for(int i = 0; i<4; ++i){
+        for(int j = 0; j<4; ++j){
+            state[i][j] = algebra.invSbox(state[i][j]); 
         }
     }
 }
 
-/*
- Joseph notes for shiftRows() :
-
- shift(r, Nb) = r
-
- shiftRows():
-     example: row = 2
-     [1, 2, 3, 4] -> [3, 4, 1, 2]
-     shifts all elements to the LEFT 2
-
- invShiftRows():
-     example: row = 2
-     [1, 2, 3, 4] -> [3, 4, 1, 2]
-     shifts all elements to the RIGHT 2
-
- */
 void AES::shiftRows() {
-    uint8_t n[4][4] = state; //need copy of state since cannot be done inplace
-    for(int i = 0; i<state.size(); ++i){
-        for(int j = 0; j<state[i].size(); ++j){
-            n[i][j] = state[i][(j-i) % state[i].size()]; //(j-i) since shift LEFT
+    // Shift each row left cyclically by an offset equal to row number.
+    for(int i = 0; i<4; ++i){
+        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
+        for(int j = 0; j<4; ++j){
+            state[i][j] = n[j+i % 4]; //(j+i) since shift LEFT
         }
     }
-    state = n;
-    n.clear(); //clears data in memory. may not be needed
 }
 
 void AES::invShiftRows() {
-    uint8_t n[4][4] = state; //need copy of state since cannot be done inplace
-    for(int i = 0; i<state.size(); ++i){
-        for(int j = 0; j<state[i].size(); ++j){
-            n[i][j] = state[i][(j+i) % state[i].size()]; //(j+i) since shift RIGHT
+    // Shift each row right cyclically by an offset equal to row number.
+    for(int i = 0; i<4; ++i){
+        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
+        for(int j = 0; j<4; ++j){
+            state[i][j] = n[abs(j+i) % 4]; //(j-i) since shift RIGHT
         }
     }
-    state = n;
-    n.clear(); //clears data in memory. may not be needed
+}
+void AES::mixColumns() {
+    // Perform column-by-column computation through polynomial multiplication.
+    // See Section 5.6
+    for(int i = 0; i<4; ++i){
+        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
+        // Each hexadecimal was precomputed into int
+        state[i][0] = algebra.bytetimes(n[0], 2) ^ algebra.bytetimes(n[1], 3) ^ n[2] ^ n[3];
+        state[i][1] = n[0] ^ algebra.bytetimes(n[1], 2) ^ algebra.bytetimes(n[2], 3) ^ n[3];
+        state[i][2] = n[0] ^ n[1] ^ algebra.bytetimes(n[2], 2) ^ algebra.bytetimes(n[3], 3);
+        state[i][3] = algebra.bytetimes(n[0], 3) ^ n[1] ^ n[2] ^ algebra.bytetimes(n[3], 2);
+    }
+}
+
+void AES::invMixColumns(){
+    // Perform column-by-column computation through polynomial multiplication.
+    // See Section 5.10
+    for(int i = 0; i<4; ++i){
+        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
+        // Each hexadecimal was precomputed into int
+        state[i][0] = algebra.bytetimes(n[0], 14) ^ algebra.bytetimes(n[1], 11) ^ algebra.bytetimes(n[2], 13) ^ algebra.bytetimes(n[3], 9);
+        state[i][1] = algebra.bytetimes(n[0], 9) ^ algebra.bytetimes(n[1], 14) ^ algebra.bytetimes(n[2], 11) ^ algebra.bytetimes(n[3], 13);
+        state[i][2] = algebra.bytetimes(n[0], 13) ^ algebra.bytetimes(n[1], 9) ^ algebra.bytetimes(n[2], 14) ^ algebra.bytetimes(n[3], 11);
+        state[i][3] = algebra.bytetimes(n[0], 11) ^ algebra.bytetimes(n[1], 13) ^ algebra.bytetimes(n[2], 9) ^ algebra.bytetimes(n[3], 14);
+    }
 }
 
 void AES::addRoundKey(const uint round) {
