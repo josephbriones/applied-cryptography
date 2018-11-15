@@ -1,6 +1,30 @@
 #include "algebra.h"
 #include "keyutility.h"
 
+
+void KeyUtility::KeyUtility(uint nk){
+  /*int randomData = open("/dev/random", O_RDONLY);
+if (randomData < 0)
+{
+    // something went wrong
+}
+else
+{
+    char myRandomData[50];
+    size_t randomDataLen = 0;
+    while (randomDataLen < sizeof myRandomData)
+    {
+        ssize_t result = read(randomData, myRandomData + randomDataLen, (sizeof myRandomData) - randomDataLen);
+        if (result < 0)
+        {
+            // something went wrong
+        }
+        randomDataLen += result;
+    }
+    close(randomData);
+}*/
+}
+
 uint32_t KeyUtility::rcon(const uint n) {
   uint8_t b = 2;
   uint32_t result = 0x00000000;
