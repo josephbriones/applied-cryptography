@@ -4,8 +4,6 @@
 #include <iostream>
 #include <string>
 
-#include "aes.h"
-#include "algebra.h"
 #include "cbcmode.h"
 #include "ctrmode.h"
 #include "ofbmode.h"
@@ -20,18 +18,17 @@ int main(int argc, char* argv[]) {
 
   // Argument processing.
   std::string text = argv[1];
-  uint nk = std::stoul(argv[2]);
+  uint numWordsInKey = std::stoul(argv[2]);
   std::string modeStr = argv[3];
 
   // Instantiate the AES and mode of operation objects.
-  AES * aes = new AES(nk);
-  ModeOfOp mode;
-  if (modeStr.equals("cbc")) {
-    mode = CBCMode(aes, 16);
-  } else if (modeStr.equals("ofb")) {
-    mode = OFBMode(aes, 16);
-  } else if (modeStr.equals("ctr")) {
-    mode = CTRMode(aes, 16);
+  ModeOfOp * mode;
+  if (modeStr.compare("cbc") == 0) {
+    mode = new CBCMode(16, numWordsInKey);
+  } else if (modeStr.compare("ofb") == 0) {
+    mode = new OFBMode(16, numWordsInKey);
+  } else if (modeStr.compare("ctr") == 0) {
+    mode = new CTRMode(16, numWordsInKey);
   } else {
     std::cout << "[mode of op] must be one of \'cbc\', \'ofb\', or \'ctr\'."
               << std::endl;
@@ -42,4 +39,6 @@ int main(int argc, char* argv[]) {
   // TODO: output the ciphertext.
   // TODO: decrypt the ciphertext according to the mode of operation.
   // TODO: output the plaintext.
+
+  // TODO: do garbage collection.
 }

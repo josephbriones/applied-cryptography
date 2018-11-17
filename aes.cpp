@@ -1,120 +1,205 @@
 #include "aes.h"
 #include "algebra.h"
-#include "keyutility.h"
 
-AES::AES(unsigned int nk)
-{
-  //keyutil = new KeyUtility(nk);
+AES::AES(std::vector<uint32_t> * key) :
+  key(key) {
+  // TODO: assert that the key is one of the valid sizes.
 }
 
-void AES::encrypt(){
-    // Cipher encryption scheme reference in Figure 5 of standard documentation
-    addRoundKey(0);
-    for(int i = 1; i <(nk+6)-1; i++){
-        subBytes();
-        shiftRows();
-        mixColumns();
-        addRoundKey(i);
-    }
+std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
+  // TODO: load plain block's bytes into the state.
+
+  addRoundKey(0);
+  for (uint round = 1; round < (key->size() + 6) - 1; ++round) {
     subBytes();
     shiftRows();
-    addRoundKey(nk+6);
+    mixColumns();
+    addRoundKey(round);
+  }
+  subBytes();
+  shiftRows();
+  addRoundKey(key->size() + 6);
+
+  // TODO: transform the state back into a block and return.
 }
-void AES::decrypt(){
-    // Cipher decryption scheme reference in Figure 12 of standard documentation
-    addRoundKey(nk+6);
-    for(int i = (nk+6)-1; i > 0; i++){
-        invShiftRows();
-        invSubBytes();
-        addRoundKey(i);
-        invMixColumns();
-    }
-    invSubBytes();
+
+std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
+  // TODO: load cipher block's bytes into the state.
+
+  addRoundKey(key->size() + 6);
+  for (uint round = (key->size() + 6) - 1; round > 0; --round){
     invShiftRows();
-    addRoundKey(0);
+    invSubBytes();
+    addRoundKey(round);
+    invMixColumns();
+  }
+  invShiftRows();
+  invSubBytes();
+  addRoundKey(0);
+
+  // TODO: transform the state back into a block and return.
 }
 
 void AES::subBytes() {
-    // Perform a independent byte substitution using the substitution table (S-Box)
-    for(int i = 0; i<4; ++i){
-        for(int j = 0; j<4; ++j){
-            state[i][j] = algebra.sbox(state[i][j]); 
-        }
+  for (uint row = 0; row < 4; ++row) {
+    for (uint col = 0; col < 4; ++col) {
+      state[row][col] = Algebra::sbox(state[row][col]);
     }
+  }
 }
 
 void AES::invSubBytes() {
-    // Perform a independent byte substitution using the inverse substitution 
-    // table (inverse S-Box).
-    for(int i = 0; i<4; ++i){
-        for(int j = 0; j<4; ++j){
-            state[i][j] = algebra.invSbox(state[i][j]); 
-        }
+  for (uint row = 0; row < 4; ++row) {
+    for (uint col = 0; col < 4; ++col) {
+      state[row][col] = Algebra::invSbox(state[row][col]);
     }
+  }
 }
 
 void AES::shiftRows() {
-    // Shift each row left cyclically by an offset equal to row number.
-    for(int i = 0; i<4; ++i){
-        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
-        for(int j = 0; j<4; ++j){
-            state[i][j] = n[j+i % 4]; //(j+i) since shift LEFT
-        }
+  for (int row = 0; row < 4; ++row) {
+    uint8_t r[4] = {state[row][0], state[row][1], state[row][2], state[row][3]};
+
+    // Cyclic shift each element 'row' elements to the left.
+    for (int col = 0; col < 4; ++col) {
+      state[row][col] = r[(col - row + 4) % 4];
     }
+  }
 }
 
 void AES::invShiftRows() {
-    // Shift each row right cyclically by an offset equal to row number.
-    for(int i = 0; i<4; ++i){
-        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
-        for(int j = 0; j<4; ++j){
-            state[i][j] = n[abs(j+i) % 4]; //(j-i) since shift RIGHT
-        }
+  for (int row = 0; row < 4; ++row) {
+    uint8_t r[4] = {state[row][0], state[row][1], state[row][2], state[row][3]};
+
+    // Cyclic shift each element 'row' elements to the right.
+    for (int col = 0; col < 4; ++col) {
+      state[row][col] = r[(col + row) % 4];
     }
-}
-void AES::mixColumns() {
-    // Perform column-by-column computation through polynomial multiplication.
-    // See Section 5.6
-    for(int i = 0; i<4; ++i){
-        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
-        // Each hexadecimal was precomputed into int
-        state[i][0] = algebra.bytetimes(n[0], 2) ^ algebra.bytetimes(n[1], 3) ^ n[2] ^ n[3];
-        state[i][1] = n[0] ^ algebra.bytetimes(n[1], 2) ^ algebra.bytetimes(n[2], 3) ^ n[3];
-        state[i][2] = n[0] ^ n[1] ^ algebra.bytetimes(n[2], 2) ^ algebra.bytetimes(n[3], 3);
-        state[i][3] = algebra.bytetimes(n[0], 3) ^ n[1] ^ n[2] ^ algebra.bytetimes(n[3], 2);
-    }
+  }
 }
 
-void AES::invMixColumns(){
-    // Perform column-by-column computation through polynomial multiplication.
-    // See Section 5.10
-    for(int i = 0; i<4; ++i){
-        uint8_t n[4] = {state[i][0], state[i][1], state[i][2], state[i][3]};
-        // Each hexadecimal was precomputed into int
-        state[i][0] = algebra.bytetimes(n[0], 14) ^ algebra.bytetimes(n[1], 11) ^ algebra.bytetimes(n[2], 13) ^ algebra.bytetimes(n[3], 9);
-        state[i][1] = algebra.bytetimes(n[0], 9) ^ algebra.bytetimes(n[1], 14) ^ algebra.bytetimes(n[2], 11) ^ algebra.bytetimes(n[3], 13);
-        state[i][2] = algebra.bytetimes(n[0], 13) ^ algebra.bytetimes(n[1], 9) ^ algebra.bytetimes(n[2], 14) ^ algebra.bytetimes(n[3], 11);
-        state[i][3] = algebra.bytetimes(n[0], 11) ^ algebra.bytetimes(n[1], 13) ^ algebra.bytetimes(n[2], 9) ^ algebra.bytetimes(n[3], 14);
-    }
+void AES::mixColumns() {
+  for (int col = 0; col < 4; ++col) {
+    // Copy the current column into a temporary array of bytes.
+    uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
+
+    // Multiply s(x) by a(x) = {03}x^3+ {01}x^2 + {01}x + {02}.
+    state[0][col] = Algebra::bytetimes(2, s[0]) ^ Algebra::bytetimes(3, s[1])
+                    ^ s[2] ^ s[3];
+    state[1][col] = s[0] ^ Algebra::bytetimes(2, s[1])
+                    ^ Algebra::bytetimes(3, s[2]) ^ s[3];
+    state[2][col] = s[0] ^ s[1] ^ Algebra::bytetimes(2, s[2])
+                    ^ Algebra::bytetimes(3, s[3]);
+    state[3][col] = Algebra::bytetimes(3, s[0]) ^ s[1] ^ s[2]
+                    ^ Algebra::bytetimes(2, s[3]);
+  }
+}
+
+void AES::invMixColumns() {
+  for (int col = 0; col < 4; ++col) {
+    // Copy the current column into a temporary array of bytes.
+    uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
+
+    // Multiply s(x) by a-1(x) = {0b}x^3+ {0d}x^2+ {09}x + {0e}.
+    state[0][col] = Algebra::bytetimes(14, s[0]) ^ Algebra::bytetimes(11, s[1])
+                  ^ Algebra::bytetimes(13, s[2]) ^ Algebra::bytetimes(9, s[3]);
+    state[1][col] = Algebra::bytetimes(9, s[0]) ^ Algebra::bytetimes(14, s[1])
+                  ^ Algebra::bytetimes(11, s[2]) ^ Algebra::bytetimes(13, s[3]);
+    state[2][col] = Algebra::bytetimes(13, s[0]) ^ Algebra::bytetimes(9, s[1])
+                  ^ Algebra::bytetimes(14, s[2]) ^ Algebra::bytetimes(11, s[3]);
+    state[3][col] = Algebra::bytetimes(11, s[0]) ^ Algebra::bytetimes(13, s[1])
+                  ^ Algebra::bytetimes(9, s[2]) ^ Algebra::bytetimes(14, s[3]);
+  }
 }
 
 void AES::addRoundKey(const uint round) {
-  KeyUtility k;
-  //how to access the union key
-  uint8_t n[4][4] = state;
-  for(int i = 0; i<state.size(); ++i){
-    for(int j = 0; j<state[i].size(); ++j){
-      //discuss the arguments to pass in expandKey
-      uint32_t wtemp = k.expandKey()
-      //how do you xor the word with a column
-      uint8_t b[4];
-      b[0] = (wtemp & 0x000000ff);
-      b[1] = (wtemp & 0x0000ff00) >> 8;
-      b[2] = (wtemp & 0x00ff0000) >> 16;
-      b[3] = (wtemp & 0xff000000) >> 24;
-      n[i][j] = state[i][j] ^ b[j];
+  // First, get the words in the key schedule for this round.
+  std::array<uint32_t, 4> roundKeys = expandKey(round);
+
+  for (uint col = 0; col < 4; ++col) {
+    // Reconstruct a word from the 4 column bytes.
+    uint8_t b[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
+    uint32_t colWord = b[3];
+    for (uint i = 1; i < 4; ++i) {
+      colWord = (colWord << 8) ^ b[4 - (i + 1)];
     }
+
+    // XOR the column with the corresponding round key.
+    colWord = colWord ^ roundKeys[col];
+
+    // Break the updated column into bytes and update the state.
+    state[0][col] = (colWord & 0x000000ff);
+    state[1][col] = (colWord & 0x0000ff00) >> 8;
+    state[2][col] = (colWord & 0x00ff0000) >> 16;
+    state[3][col] = (colWord & 0xff000000) >> 24;
   }
-  state = n;
-  n.clear();
+}
+
+std::array<uint32_t, 4> AES::expandKey(const uint round) {
+  // Need to generate 4 * (round + 1) keys and return the last 4.
+  std::vector<uint32_t> keySchedule;
+
+  // First, load all the words from the key into the key schedule.
+  for (uint i = 0; i < key->size(); ++i) {
+    keySchedule.push_back(key->at(i));
+  }
+
+  // Generate the rest of the keys.
+  while (keySchedule.size() < 4 * (round + 1)) {
+    uint32_t temp = keySchedule.back();
+    if (keySchedule.size() % key->size() == 0) {
+      temp = subWord(rotWord(temp)) ^ rcon(keySchedule.size() / key->size());
+    } else if (key->size() > 6 && (keySchedule.size() % 4) == 0) {
+      temp = subWord(temp);
+    }
+
+    keySchedule.push_back(keySchedule[keySchedule.size() - key->size()] ^ temp);
+  }
+
+  // Extract the last 4 keys and return them.
+  std::array<uint32_t, 4> roundKeys;
+  for (uint i = 0; i < 4; ++i) {
+    roundKeys[4 - (i + 1)] = keySchedule.back();
+    keySchedule.pop_back();
+  }
+
+  return roundKeys;
+}
+
+uint32_t AES::subWord(const uint32_t w) {
+  // Break the input word into its 4 bytes.
+  uint8_t b[4];
+  b[0] = (w & 0x000000ff);
+  b[1] = (w & 0x0000ff00) >> 8;
+  b[2] = (w & 0x00ff0000) >> 16;
+  b[3] = (w & 0xff000000) >> 24;
+
+  // Apply the S-box to each of the 4 bytes.
+  for (uint i = 0; i < 4; ++i) {
+    b[i] = Algebra::sbox(b[i]);
+  }
+
+  // Reconstruct a word from the 4 bytes.
+  uint32_t result = b[3];
+  for (uint i = 1; i < 4; ++i) {
+    result = (result << 8) ^ b[4 - (i + 1)];
+  }
+
+  return result;
+}
+
+uint32_t AES::rotWord(const uint32_t w) {
+  // XOR [0,0,0,a0] with [a1,a2,a3,0] to obtain the rotated word.
+  return (w >> 24) ^ (w << 8);
+}
+
+uint32_t AES::rcon(const uint32_t r) {
+  // Raise x (i.e., {02} = 2) to the power r - 1.
+  uint8_t b = 2;
+  for (uint i = 1; i <= r - 1; ++i) {
+    b = Algebra::xtimes(b);
+  }
+
+  uint32_t rcon = b;
+  return rcon << 24;
 }

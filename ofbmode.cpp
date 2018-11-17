@@ -1,17 +1,17 @@
 #include "ofbmode.h"
 
-OFBMode::OFBMode(AES * aes, uint blockSize) :
-  ModeOfOp(aes, blockSize) {
-  IV = uniqueIV();
+OFBMode::OFBMode(uint numBytesInBlock, uint numWordsInKey) :
+  ModeOfOp(numBytesInBlock, numWordsInKey) {
+  uniqueIV();
 }
 
-std::string encrypt(const std::string plaintxt) {
+std::string OFBMode::encrypt(const std::string plaintxt) {
 
 
   return "";  // TODO.
 }
 
-std::string decrypt(const std::string ciphertxt) {
+std::string OFBMode::decrypt(const std::string ciphertxt) {
 
   return "";  // TODO.
 }

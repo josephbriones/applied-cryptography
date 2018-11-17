@@ -1,5 +1,8 @@
 // Utility functions for computing algebraic functions for AES.
 
+#ifndef ALGEBRA_H
+#define ALGEBRA_H
+
 #include <array>
 #include <vector>
 
@@ -64,3 +67,5 @@ class Algebra {
   static void printByte(const bytePoly& b, const std::string name);
   static void printPoly(const poly& p, const std::string name);
 };
+
+#endif  // ALGEBRA_H
