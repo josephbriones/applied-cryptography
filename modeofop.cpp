@@ -23,8 +23,12 @@ std::vector<ModeOfOp::Block> ModeOfOp::textToBlocks(const std::string text) {
 }
 
 std::string ModeOfOp::blocksToText(const std::vector<ModeOfOp::Block>& blocks) {
+  std::string str = "";
+  for (Block block : blocks) {
+    // TODO.
+  }
 
-  return "";  // TODO.
+  return str;
 }
 
 void ModeOfOp::pad(const std::vector<Block>& blocks) {
