@@ -37,6 +37,7 @@ std::string CBCMode::decrypt(const std::string ciphertxt) {
     plain.push_back(x);
     temp = *itr;
   }
+  invpad(&plain);
   std::string plaintxt = blocksToText(&plain);
   return plaintxt;*/
   return "";  // TODO.
