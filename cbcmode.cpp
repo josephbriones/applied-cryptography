@@ -1,6 +1,5 @@
 #include "cbcmode.h"
-//#include "aes.h"
-//#include "modeofop.h"
+
 //typedef std::vector<uint8_t> Block;
 
 CBCMode::CBCMode(uint numBytesInBlock, uint numWordsInKey) :
@@ -9,20 +8,21 @@ CBCMode::CBCMode(uint numBytesInBlock, uint numWordsInKey) :
 }
 
 std::string CBCMode::encrypt(const std::string plaintxt) {
-  /*std::vector<Block> cipher;
+  std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
-  pad(&plain);
-  vector<Block>::iterator itr;
+  pad(plain);
+
   Block temp = IV;
-  AES loopaes;
-  for(itr = plain.begin(); itr < plain.end(); itr++){
-    temp = temp ^ *itr;
-    temp = loopaes.encrypt(temp);
+  for (Block block : plain) {
+    for (uint i = 0; i < temp.size(); ++i) {
+      temp[i] = temp[i] ^ block[i];
+    }
+
+    temp = aes->encrypt(temp);
     cipher.push_back(temp);
   }
-  std::string ciphertxt = blocksToText(&cipher);
-  return ciphertxt;*/
-  return "";  // TODO.
+
+  return blocksToText(cipher);
 }
 
 std::string CBCMode::decrypt(const std::string ciphertxt) {
