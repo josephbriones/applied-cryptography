@@ -18,14 +18,14 @@ std::string CBCMode::encrypt(const std::string plaintxt) {
     temp = aes->encrypt(temp);
     cipher.push_back(temp);
   }
-
+  cipher.push_back(IV);
   return blocksToText(cipher);
 }
 
 std::string CBCMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = IV;
+  Block temp = cipher.pop_back();
   Block x, d;
 
   for (Block block : cipher) {

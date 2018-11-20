@@ -2,7 +2,7 @@
 
 OFBMode::OFBMode(uint numBytesInBlock, uint numWordsInKey) :
   ModeOfOp(numBytesInBlock, numWordsInKey) {
-  uniqueIV();
+  uniqueIV(1);
 }
 
 std::string OFBMode::encrypt(const std::string plaintxt) {
@@ -18,14 +18,14 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
     }
     cipher.push_back(x);
   }
-
+  cipher.push_back(IV);
   return blocksToText(cipher);
 }
 
 std::string OFBMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = IV;
+  Block temp = cipher.pop_back();
   Block x;
 
   for (Block block : cipher) {

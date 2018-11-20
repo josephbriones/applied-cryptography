@@ -2,12 +2,13 @@
 
 CTRMode::CTRMode(uint numBytesInBlock, uint numWordsInKey) :
   ModeOfOp(numBytesInBlock, numWordsInKey) {
-  uniqueIV();
+
 }
 
 std::string CTRMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
+  uniqueIV(plain.size());
   Block temp = IV;
   Block x;
 
@@ -18,14 +19,14 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
     }
     cipher.push_back(x);
   }
-
+  cipher.push_back(IV);
   return blocksToText(cipher);
 }
 
 std::string CTRMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = IV;
+  Block temp = cipher.pop_back();
   Block x;
 
   for (Block block : cipher) {
