@@ -9,11 +9,12 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
   uniqueIV(plain.size());
-  Block temp = IV;
-  Block x;
+  Block ctr = IV;
+  Block x,temp;
 
   for (Block block : plain) {
-    temp = aes->encrypt(temp);
+    temp = aes->encrypt(ctr);
+    ctr++;
     for (uint i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
@@ -26,11 +27,12 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
 std::string CTRMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = cipher.pop_back();
-  Block x;
+  Block ctr = cipher.pop_back();
+  Block x,temp;
 
   for (Block block : cipher) {
-    temp = aes->encrypt(temp);
+    temp = aes->encrypt(ctr);
+    ctr++;
     for (uint i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
