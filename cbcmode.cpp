@@ -2,8 +2,8 @@
 
 //typedef std::vector<uint8_t> Block;
 
-CBCMode::CBCMode(uint numBytesInBlock, uint numWordsInKey) :
-  ModeOfOp(numBytesInBlock, numWordsInKey) {
+CBCMode::CBCMode(uint numWordsInBlock, uint numWordsInKey) :
+  ModeOfOp(numWordsInBlock, numWordsInKey) {
   unpredictableIV();
 }
 

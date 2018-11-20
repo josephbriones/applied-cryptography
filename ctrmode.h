@@ -5,9 +5,9 @@
 
 class CTRMode : public ModeOfOp {
  public:
-  // Constructor which takes as input its block cipher's # of bytes per block
+  // Constructor which takes as input its block cipher's # of words per block
   // and the # of words per key.
-  CTRMode(uint numBytesInBlock, uint numWordsInKey);
+  CTRMode(uint numWordsInBlock, uint numWordsInKey);
 
   // TODO: need a destructor to call the parent destructor.
 

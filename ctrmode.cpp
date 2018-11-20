@@ -1,9 +1,7 @@
 #include "ctrmode.h"
 
-CTRMode::CTRMode(uint numBytesInBlock, uint numWordsInKey) :
-  ModeOfOp(numBytesInBlock, numWordsInKey) {
-  uniqueIV();
-}
+CTRMode::CTRMode(uint numWordsInBlock, uint numWordsInKey) :
+  ModeOfOp(numWordsInBlock, numWordsInKey) {}
 
 std::string CTRMode::encrypt(const std::string plaintxt) {
 

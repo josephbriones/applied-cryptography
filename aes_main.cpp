@@ -24,11 +24,11 @@ int main(int argc, char* argv[]) {
   // Instantiate the AES and mode of operation objects.
   ModeOfOp * mode;
   if (modeStr.compare("cbc") == 0) {
-    mode = new CBCMode(16, numWordsInKey);
+    mode = new CBCMode(4, numWordsInKey);
   } else if (modeStr.compare("ofb") == 0) {
-    mode = new OFBMode(16, numWordsInKey);
+    mode = new OFBMode(4, numWordsInKey);
   } else if (modeStr.compare("ctr") == 0) {
-    mode = new CTRMode(16, numWordsInKey);
+    mode = new CTRMode(4, numWordsInKey);
   } else {
     std::cout << "[mode of op] must be one of \'cbc\', \'ofb\', or \'ctr\'."
               << std::endl;

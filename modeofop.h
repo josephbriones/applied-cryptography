@@ -8,11 +8,13 @@
 
 class ModeOfOp {
  public:
-  // Constructor which takes as input its block cipher's # of bytes per block
+  // Constructor which takes as input its block cipher's # of words per block
   // and the # of words per key.
-  ModeOfOp(uint numBytesInBlock, uint numWordsInKey);
+  ModeOfOp(uint numWordsInBlock, uint numWordsInKey);
 
-  // TODO: need a destructor to garbage collect the AES object.
+  // Destructor which garbage collects the AES object and saves the used
+  // initialization vectors to file.
+  virtual ~ModeOfOp();
 
   // Pure virtual functions for encrypting or decrypting some text; must be
   // overridden by child classes.
@@ -20,22 +22,29 @@ class ModeOfOp {
   virtual std::string decrypt(const std::string ciphertxt) = 0;
 
  protected:
-  // Convenience typedef for representing blocks as vectors of bytes (uint8_t).
-  // The correct size is maintainted by the mode of operation's "blockSize".
+  // Convenience typedef for representing blocks as vectors of bytes (uint8_t),
+  // ordered from most to least significant byte. The correct size is
+  // maintainted by the mode of operation's "blockSize".
   typedef std::vector<uint8_t> Block;
 
   // Properties.
-  uint numBytesInBlock;
-  std::vector<uint32_t> key;
-  AES * aes;
-  Block IV;
+  uint numWordsInBlock;        // Block size, in # of words.
+  std::vector<uint32_t> key;   // Key for the block cipher.
+  AES * aes;                   // Pointer to AES block cipher.
+  std::vector<Block> usedIVs;  // Container of all previously used IVs.
+  Block IV;                    // Current IV.
+
+  // Utility functions for loading and saving the list of previously used
+  // initialization vectors.
+  void loadIVs(std::string fname);
+  void saveIVs(std::string fname);
 
   // Functions for generating unpredictable or unique initialization vectors.
-  // Unpredictable IVs are obtained through random number generation, while
-  // uniqueIVs are started at a random seed and incremented in large enough
-  // step sizes to guarantee uniqueness. (TODO: may need to fix latter).
+  // Unpredictable IVs are obtained through random number generation. Unique IVs
+  // are also obtained through random number generation, but ensure that neither
+  // the IV nor any of IV+1, IV+2, IV+(numIVs-1) have ever been used before.
   void unpredictableIV();
-  void uniqueIV();
+  void uniqueIV(uint numIVs);
 
   // Functions for changing text into a vector of blocks and back.
   std::vector<Block> textToBlocks(const std::string text);
@@ -48,9 +57,10 @@ class ModeOfOp {
   void pad(const std::vector<Block>& blocks);
   void invPad(const std::vector<Block>& blocks);
 
-  // Utility function for getting random words from /dev/random. The number of
-  // words to create is passed as input.
-  std::vector<uint32_t> randWords(uint numWords);
+  // Utility function for getting random bytes and words from /dev/random. The
+  // number of bytes or words to create is passed as input.
+  std::vector<uint8_t> randBytes(const uint numBytes);
+  std::vector<uint32_t> randWords(const uint numWords);
 };
 
 #endif  // MODEOFOP_H
