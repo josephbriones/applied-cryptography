@@ -1,6 +1,6 @@
 #include "ctrmode.h"
 
-CTRMode::CTRMode(uint numWordsInBlock, uint numWordsInKey) :
+CTRMode::CTRMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   ModeOfOp(numWordsInBlock, numWordsInKey) {}
 
 std::string CTRMode::encrypt(const std::string plaintxt) {
@@ -13,7 +13,7 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
   for (Block block : plain) {
     temp = aes->encrypt(ctr);
     ctr++;
-    for (uint i = 0; i < block.size(); ++i) {
+    for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
     cipher.push_back(x);
@@ -25,13 +25,14 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
 std::string CTRMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block ctr = cipher.pop_back();
+  Block ctr = cipher.back();
+  cipher.pop_back();
   Block x,temp;
 
   for (Block block : cipher) {
     temp = aes->encrypt(ctr);
     ctr++;
-    for (uint i = 0; i < block.size(); ++i) {
+    for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
     plain.push_back(x);

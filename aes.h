@@ -61,11 +61,11 @@ class AES {
   // Performs a linear transformation on each column of the state independently.
   // In every round, for each column c in {0, 1, 2, 3}, a new key schedule word
   // w(4 * round + c) is obtained and XORed with column c.
-  void addRoundKey(const uint round);
+  void addRoundKey(const unsigned int round);
 
   // Performs key expansion, returning the key schedule words used in
   // addRoundKey() for the given round.
-  std::array<uint32_t, 4> expandKey(const uint round);
+  std::array<uint32_t, 4> expandKey(const unsigned int round);
 
   // Like subBytes(), this function performs a nonlinear substitution of each of
   // the given word's 4 bytes individually by applying AES's S-box.

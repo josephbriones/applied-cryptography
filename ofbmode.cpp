@@ -1,6 +1,6 @@
 #include "ofbmode.h"
 
-OFBMode::OFBMode(uint numWordsInBlock, uint numWordsInKey) :
+OFBMode::OFBMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   ModeOfOp(numWordsInBlock, numWordsInKey) {
   uniqueIV(1);
 }
@@ -14,7 +14,7 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
   for (Block block : plain) {
     temp = aes->encrypt(temp);
     //uniqueIV.push_back(temp);
-    for (uint i = 0; i < block.size(); ++i) {
+    for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
     cipher.push_back(x);
@@ -26,13 +26,14 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
 std::string OFBMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = cipher.pop_back();
+  Block temp = cipher.back();
+  cipher.pop_back();
   Block x;
 
   for (Block block : cipher) {
     temp = aes->encrypt(temp);
     //uniqueIV.push_back(temp);
-    for (uint i = 0; i < block.size(); ++i) {
+    for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
     plain.push_back(x);

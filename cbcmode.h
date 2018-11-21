@@ -7,7 +7,7 @@ class CBCMode : public ModeOfOp {
  public:
   // Constructor which takes as input its block cipher's # of words per block
   // and the # of words per key.
-  CBCMode(uint numWordsInBlock, uint numWordsInKey);
+  CBCMode(unsigned int numWordsInBlock, unsigned int numWordsInKey);
 
   // TODO: need a destructor to call the parent destructor.
 

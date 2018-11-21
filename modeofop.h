@@ -10,7 +10,7 @@ class ModeOfOp {
  public:
   // Constructor which takes as input its block cipher's # of words per block
   // and the # of words per key.
-  ModeOfOp(uint numWordsInBlock, uint numWordsInKey);
+  ModeOfOp(unsigned int numWordsInBlock, unsigned int numWordsInKey);
 
   // Destructor which garbage collects the AES object and saves the used
   // initialization vectors to file.
@@ -28,7 +28,7 @@ class ModeOfOp {
   typedef std::vector<uint8_t> Block;
 
   // Properties.
-  uint numWordsInBlock;        // Block size, in # of words.
+  unsigned int numWordsInBlock;        // Block size, in # of words.
   std::vector<uint32_t> key;   // Key for the block cipher.
   AES * aes;                   // Pointer to AES block cipher.
   std::vector<Block> usedIVs;  // Container of all previously used IVs.
@@ -44,7 +44,7 @@ class ModeOfOp {
   // are also obtained through random number generation, but ensure that neither
   // the IV nor any of IV+1, IV+2, IV+(numIVs-1) have ever been used before.
   void unpredictableIV();
-  void uniqueIV(uint numIVs);
+  void uniqueIV(unsigned int numIVs);
 
   // Functions for changing text into a vector of blocks and back.
   std::vector<Block> textToBlocks(const std::string text);
@@ -54,13 +54,13 @@ class ModeOfOp {
   // X = blockSize - (|text| mod blockSize) copies of X, unless X = 0, in which
   // case blockSize copies of blockSize are appended instead). invPad() simply
   // does the opposite, removing any padding.
-  void pad(const std::vector<Block>& blocks);
-  void invPad(const std::vector<Block>& blocks);
+  void pad(std::vector<Block>& blocks);
+  void invPad(std::vector<Block>& blocks);
 
   // Utility function for getting random bytes and words from /dev/random. The
   // number of bytes or words to create is passed as input.
-  std::vector<uint8_t> randBytes(const uint numBytes);
-  std::vector<uint32_t> randWords(const uint numWords);
+  std::vector<uint8_t> randBytes(const unsigned int numBytes);
+  std::vector<uint32_t> randWords(const unsigned int numWords);
 };
 
 #endif  // MODEOFOP_H

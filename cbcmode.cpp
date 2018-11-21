@@ -1,6 +1,6 @@
 #include "cbcmode.h"
 
-CBCMode::CBCMode(uint numWordsInBlock, uint numWordsInKey) :
+CBCMode::CBCMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   ModeOfOp(numWordsInBlock, numWordsInKey) {
   unpredictableIV();
 }
@@ -12,7 +12,7 @@ std::string CBCMode::encrypt(const std::string plaintxt) {
   Block temp = IV;
 
   for (Block block : plain) {
-    for (uint i = 0; i < temp.size(); ++i) {
+    for (unsigned int i = 0; i < temp.size(); ++i) {
       temp[i] = temp[i] ^ block[i];
     }
     temp = aes->encrypt(temp);
@@ -25,18 +25,19 @@ std::string CBCMode::encrypt(const std::string plaintxt) {
 std::string CBCMode::decrypt(const std::string ciphertxt) {
   std::vector<Block> plain;
   std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = cipher.pop_back();
+  Block temp = cipher.back();
+  cipher.pop_back();
   Block x, d;
 
   for (Block block : cipher) {
     d = aes->decrypt(block);
-    for (uint i = 0; i < temp.size(); ++i) {
+    for (unsigned int i = 0; i < temp.size(); ++i) {
       x[i] = d[i] ^ temp[i];
     }
     plain.push_back(x);
     temp = block;
   }
 
-  invpad(plain);
+  invPad(plain);
   return blocksToText(plain);
 }

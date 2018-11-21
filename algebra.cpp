@@ -31,7 +31,7 @@ uint8_t Algebra::sbox(const uint8_t b) {
 
   // Then apply the S-box affine transformation over GF(2).
   bytePoly affine;
-  for (uint i = 0; i < inv.size(); ++i) {
+  for (unsigned int i = 0; i < inv.size(); ++i) {
     affine[i] = inv[i] ^ inv[(i + 4) % 8] ^ inv[(i + 5) % 8] ^ inv[(i + 6) % 8]
                 ^ inv[(i + 7) % 8];
   }
@@ -43,7 +43,7 @@ uint8_t Algebra::invSbox(const uint8_t b) {
   // First, apply the inverse S-box affine transformation over GF(2).
   bytePoly p = bytetopoly(b);
   bytePoly affine;
-  for (uint i = 0; i < affine.size(); ++i) {
+  for (unsigned int i = 0; i < affine.size(); ++i) {
     affine[i] = p[(i + 2) % 8] ^ p[(i + 5) % 8] ^ p[(i + 7) % 8];
   }
   uint8_t a = polytobyte(affine) ^ 5;
@@ -55,7 +55,7 @@ uint8_t Algebra::invSbox(const uint8_t b) {
 Algebra::bytePoly Algebra::bytetopoly(uint8_t b) {
   bytePoly result;
   result.fill(0);
-  for (uint i = 0; i < 8; ++i) {
+  for (unsigned int i = 0; i < 8; ++i) {
     result[7 - i] = (b >= 128);
     b = b << 1;
   }
@@ -65,7 +65,7 @@ Algebra::bytePoly Algebra::bytetopoly(uint8_t b) {
 
 uint8_t Algebra::polytobyte(const bytePoly& p) {
   uint8_t result = 0;
-  for (uint i = 0; i < 8; ++i) {
+  for (unsigned int i = 0; i < 8; ++i) {
     if (p[i]) {
       result += pow(2, i);
     }
@@ -77,7 +77,7 @@ uint8_t Algebra::polytobyte(const bytePoly& p) {
 Algebra::bytePoly Algebra::polytobytepoly(const poly& p) {
   bytePoly result;
   result.fill(0);
-  for (uint i = 0; i < result.size(); ++i) {
+  for (unsigned int i = 0; i < result.size(); ++i) {
     result[i] = p[i];
   }
 
@@ -116,7 +116,7 @@ uint8_t Algebra::multinv(const uint8_t b) {
       rems.push_back(polytobytepoly(r));
 
       // Next, if we are beyond step 1, compute the auxiliary information.
-      uint step = quots.size() - 1;
+      unsigned int step = quots.size() - 1;
       if (step > 1) {
         bytePoly a = bytetopoly(polytobyte(auxs[step - 2])
                                 ^ bytetimes(auxs[step - 1], quots[step - 2]));
@@ -130,7 +130,7 @@ uint8_t Algebra::multinv(const uint8_t b) {
     } while (polytobyte(rhs) != 0);
 
     // Calculate the multiplicative inverse.
-    const uint k = auxs.size() - 1;
+    const unsigned int k = auxs.size() - 1;
     return polytobyte(auxs[k - 1]) ^ bytetimes(auxs[k], quots[k - 1]);
   }
 }
@@ -138,9 +138,9 @@ uint8_t Algebra::multinv(const uint8_t b) {
 Algebra::poly Algebra::polytimes(const poly& p1, const poly& p2) {
   // Multiply the polynomials together with 0/1 coefficients.
   std::vector<bool> prod(p1.size() + p2.size() - 1, 0);
-  for (uint i = 0; i < p1.size(); ++i) {
+  for (unsigned int i = 0; i < p1.size(); ++i) {
     if (p1[i]) {
-      for (uint j = 0; j < p2.size(); ++j) {
+      for (unsigned int j = 0; j < p2.size(); ++j) {
         if (p2[j]) {
           prod[i + j] = !prod[i + j];
         }
@@ -156,8 +156,8 @@ void Algebra::polydiv(poly p1, const poly& p2, poly* q, poly* r) {
   r->assign(p2.size(), 0);  // Remainder.
 
   // Get the degree of the divisor (p2), which doesn't change.
-  uint deg2 = 0;
-  for (uint i = 0; i < p2.size(); ++i) {
+  unsigned int deg2 = 0;
+  for (unsigned int i = 0; i < p2.size(); ++i) {
     if (p2[i]) {
       deg2 = i;
     }
@@ -174,8 +174,8 @@ void Algebra::polydiv(poly p1, const poly& p2, poly* q, poly* r) {
   } else {  // No boundary cases, divisor > 1.
     while (1) {
       // Get the degree of the (remaining) dividend.
-      uint deg1 = 0;
-      for (uint i = 0; i < p1.size(); ++i) {
+      unsigned int deg1 = 0;
+      for (unsigned int i = 0; i < p1.size(); ++i) {
         if (p1[i]) {
           deg1 = i;
         }
@@ -189,7 +189,7 @@ void Algebra::polydiv(poly p1, const poly& p2, poly* q, poly* r) {
       } else {
         // Do a round of long division.
         q->at(deg1 - deg2) = 1;
-        for (uint i = 0; i <= deg2; ++i) {
+        for (unsigned int i = 0; i <= deg2; ++i) {
           if (p2[i]) {
             p1[deg1 - deg2 + i] = !p1[deg1 - deg2 + i];
           }

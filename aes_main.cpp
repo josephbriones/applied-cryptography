@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 
   // Argument processing.
   std::string text = argv[1];
-  uint numWordsInKey = std::stoul(argv[2]);
+  unsigned int numWordsInKey = std::stoul(argv[2]);
   std::string modeStr = argv[3];
 
   // Instantiate the AES and mode of operation objects.

@@ -2,7 +2,7 @@
 
 #include "modeofop.h"
 
-ModeOfOp::ModeOfOp(uint numWordsInBlock, uint numWordsInKey) :
+ModeOfOp::ModeOfOp(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   numWordsInBlock(numWordsInBlock) {
   key = randWords(numWordsInKey);
   aes = new AES(&key);
@@ -61,7 +61,7 @@ void ModeOfOp::unpredictableIV() {
   IV = randBytes(4 * numWordsInBlock);
 }
 
-void ModeOfOp::uniqueIV(uint numIVs) {
+void ModeOfOp::uniqueIV(unsigned int numIVs) {
   // TODO.
 }
 
@@ -82,21 +82,37 @@ std::string ModeOfOp::blocksToText(const std::vector<ModeOfOp::Block>& blocks) {
   return str;
 }
 
-void ModeOfOp::pad(const std::vector<Block>& blocks) {
-  // TODO.
+void ModeOfOp::pad(std::vector<Block>& blocks) {
+  Block& lastBlock = blocks[blocks.size()-1];
+  if(lastBlock.size() < 16){
+    for(int i = lastBlock.size(); i<16; ++i){
+      lastBlock.push_back(16-lastBlock.size());
+    }
+  }
+  else{
+    Block paddingBlock;
+    for(int i = 0; i<16; ++i){
+      paddingBlock.push_back(0x10);
+    }
+    blocks.push_back(paddingBlock);
+  }
 }
 
-void ModeOfOp::invPad(const std::vector<Block>& blocks) {
-  // TODO.
+void ModeOfOp::invPad(std::vector<Block>& blocks) {
+  Block& lastBlock = blocks[blocks.size()-1];
+  int paddingLength = lastBlock[lastBlock.size()-1];
+  for(int i = 0; i<paddingLength; ++i){
+    lastBlock.pop_back();
+  }
 }
 
-std::vector<uint8_t> ModeOfOp::randBytes(const uint numBytes) {
+std::vector<uint8_t> ModeOfOp::randBytes(const unsigned int numBytes) {
   std::vector<uint8_t> rBytes;
 
   // Open /dev/random and read words from it one at a time.
   std::fstream devrand("/dev/random", std::fstream::in | std::fstream::binary);
   if (devrand) {
-    for (uint i = 0; i < numBytes; ++i) {
+    for (unsigned int i = 0; i < numBytes; ++i) {
       uint8_t rByte = 0;
       devrand.read(reinterpret_cast<char*>(&rByte), sizeof(rByte));
       if (devrand) {
@@ -117,14 +133,14 @@ std::vector<uint8_t> ModeOfOp::randBytes(const uint numBytes) {
   return rBytes;
 }
 
-std::vector<uint32_t> ModeOfOp::randWords(const uint numWords) {
+std::vector<uint32_t> ModeOfOp::randWords(const unsigned int numWords) {
   std::vector<uint32_t> rWords;
 
   // Get 4 * #words random bytes, then collect them into words.
   std::vector<uint8_t> rBytes = randBytes(4 * numWords);
-  for (uint i = 0; i < rBytes.size(); i += 4) {
+  for (unsigned int i = 0; i < rBytes.size(); i += 4) {
     uint32_t rWord = 0;
-    for (uint j = 0; j < 4; ++j) {
+    for (unsigned int j = 0; j < 4; ++j) {
       rWord = rWord << 8;
       rWord += rBytes[i + j];
     }
