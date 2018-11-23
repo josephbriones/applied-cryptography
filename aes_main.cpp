@@ -35,10 +35,10 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  std::string encryptedText = mode.encrypt(text)
-  cout << "Encrypted Text: " << encryptedText << std::endl;
-  std::string decryptedText = mode.decrypt(encryptedText)
-  cout << "Decrypted Text: " << decryptedText << std::endl;
+  std::string encryptedText = mode->encrypt(text);
+  std::cout << "Encrypted Text: " << encryptedText << std::endl;
+  std::string decryptedText = mode->decrypt(encryptedText);
+  std::cout << "Decrypted Text: " << decryptedText << std::endl;
 
   delete mode;
 }
