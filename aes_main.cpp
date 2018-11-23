@@ -35,10 +35,10 @@ int main(int argc, char* argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  // TODO: encrypt the plaintext according to the mode of operation.
-  // TODO: output the ciphertext.
-  // TODO: decrypt the ciphertext according to the mode of operation.
-  // TODO: output the plaintext.
+  std::string encryptedText = mode.encrypt(text)
+  cout << "Encrypted Text: " << encryptedText << std::endl;
+  std::string decryptedText = mode.decrypt(encryptedText)
+  cout << "Decrypted Text: " << decryptedText << std::endl;
 
-  // TODO: do garbage collection.
+  delete mode;
 }

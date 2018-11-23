@@ -85,13 +85,13 @@ std::string ModeOfOp::blocksToText(const std::vector<ModeOfOp::Block>& blocks) {
 void ModeOfOp::pad(std::vector<Block>& blocks) {
   Block& lastBlock = blocks[blocks.size()-1];
   if(lastBlock.size() < 16){
-    for(int i = lastBlock.size(); i<16; ++i){
+    for(unsigned int i = lastBlock.size(); i<16; ++i){
       lastBlock.push_back(16-lastBlock.size());
     }
   }
   else{
     Block paddingBlock;
-    for(int i = 0; i<16; ++i){
+    for(unsigned int i = 0; i<16; ++i){
       paddingBlock.push_back(0x10);
     }
     blocks.push_back(paddingBlock);
@@ -101,7 +101,7 @@ void ModeOfOp::pad(std::vector<Block>& blocks) {
 void ModeOfOp::invPad(std::vector<Block>& blocks) {
   Block& lastBlock = blocks[blocks.size()-1];
   int paddingLength = lastBlock[lastBlock.size()-1];
-  for(int i = 0; i<paddingLength; ++i){
+  for(unsigned int i = 0; i<paddingLength; ++i){
     lastBlock.pop_back();
   }
 }

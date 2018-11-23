@@ -3,7 +3,7 @@
 
 AES::AES(std::vector<uint32_t> * key) :
   key(key) {
-  // TODO: assert that the key is one of the valid sizes.
+    assert(key->size() == 4 || key->size() == 6 || key->size() == 8)
 }
 
 std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
