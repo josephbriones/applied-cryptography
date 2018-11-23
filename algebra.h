@@ -37,12 +37,12 @@ class Algebra {
   // representation b(x) = b7x^7 + b6x^6 + ... + b1x + b0. An array of Boolean
   // values storing the 0/1 coefficients [bi] is used to represent b(x).
   static bytePoly bytetopoly(uint8_t b);
-  static uint8_t polytobyte(const bytePoly& p);
+  static uint8_t polytobyte(const bytePoly p);
 
   // Functions for transforming between polys and bytePolys. Note that forming a
   // bytePoly from a poly only takes the first 8 bits.
-  static bytePoly polytobytepoly(const poly& p);
-  static poly bytepolytopoly(const bytePoly& b);
+  static bytePoly polytobytepoly(const poly p);
+  static poly bytepolytopoly(const bytePoly b);
 
   // Function for retrieving the irreducible polynomial m(x) = x^8 + x^4 + x^3
   // + x + 1 as a polynomial (std::vector<bool>).
@@ -59,13 +59,13 @@ class Algebra {
   // coefficients of p1(x) * p2(x). polydiv() takes p1(x) and p2(x) and computes
   // p1(x) / p2(x) = q(x) remainder r(x). bytetimes() is the private version of
   // the bytetimes() function above that takes bytes (uint8_t) as inputs.
-  static poly polytimes(const poly& p1, const poly& p2);
-  static void polydiv(poly p1, const poly& p2, poly* q, poly* r);
-  static uint8_t bytetimes(const bytePoly& b1, const bytePoly& b2);
+  static poly polytimes(const poly p1, const poly p2);
+  static void polydiv(poly p1, const poly p2, poly* q, poly* r);
+  static uint8_t bytetimes(const bytePoly b1, const bytePoly b2);
 
   // DEBUG FUNCTIONS.
-  static void printByte(const bytePoly& b, const std::string name);
-  static void printPoly(const poly& p, const std::string name);
+  static void printByte(const bytePoly b, const std::string name);
+  static void printPoly(const poly p, const std::string name);
 };
 
 #endif  // ALGEBRA_H

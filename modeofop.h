@@ -48,8 +48,8 @@ class ModeOfOp {
   void uniqueIV(unsigned int numIVs);
 
   // Functions for changing text into a vector of blocks and back.
-  std::vector<Block> textToBlocks(const std::string text);
-  std::string blocksToText(const std::vector<Block>& blocks);
+  std::vector<Block> textToBlocks(std::string text);
+  std::string blocksToText(const std::vector<Block> blocks);
 
   // Given a vector of blocks, pad() performs PKCS#7 padding (i.e., it appends
   // X = blockSize - (|text| mod blockSize) copies of X, unless X = 0, in which

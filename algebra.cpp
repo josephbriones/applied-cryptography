@@ -1,4 +1,3 @@
-#include <cmath>
 #include <iostream>
 
 #include "algebra.h"
@@ -63,18 +62,18 @@ Algebra::bytePoly Algebra::bytetopoly(uint8_t b) {
   return result;
 }
 
-uint8_t Algebra::polytobyte(const bytePoly& p) {
+uint8_t Algebra::polytobyte(const bytePoly p) {
   uint8_t result = 0;
   for (unsigned int i = 0; i < 8; ++i) {
     if (p[i]) {
-      result += pow(2, i);
+      result += (1 << i);
     }
   }
 
   return result;
 }
 
-Algebra::bytePoly Algebra::polytobytepoly(const poly& p) {
+Algebra::bytePoly Algebra::polytobytepoly(const poly p) {
   bytePoly result;
   result.fill(0);
   for (unsigned int i = 0; i < result.size(); ++i) {
@@ -84,7 +83,7 @@ Algebra::bytePoly Algebra::polytobytepoly(const poly& p) {
   return result;
 }
 
-Algebra::poly Algebra::bytepolytopoly(const bytePoly& b) {
+Algebra::poly Algebra::bytepolytopoly(const bytePoly b) {
   poly result;
   result.assign(std::begin(b), std::end(b));
 
@@ -135,7 +134,7 @@ uint8_t Algebra::multinv(const uint8_t b) {
   }
 }
 
-Algebra::poly Algebra::polytimes(const poly& p1, const poly& p2) {
+Algebra::poly Algebra::polytimes(const poly p1, const poly p2) {
   // Multiply the polynomials together with 0/1 coefficients.
   std::vector<bool> prod(p1.size() + p2.size() - 1, 0);
   for (unsigned int i = 0; i < p1.size(); ++i) {
@@ -151,7 +150,7 @@ Algebra::poly Algebra::polytimes(const poly& p1, const poly& p2) {
   return prod;
 }
 
-void Algebra::polydiv(poly p1, const poly& p2, poly* q, poly* r) {
+void Algebra::polydiv(poly p1, const poly p2, poly* q, poly* r) {
   q->assign(p1.size(), 0);  // Quotient.
   r->assign(p2.size(), 0);  // Remainder.
 
@@ -199,7 +198,7 @@ void Algebra::polydiv(poly p1, const poly& p2, poly* q, poly* r) {
   }
 }
 
-uint8_t Algebra::bytetimes(const bytePoly& b1, const bytePoly& b2) {
+uint8_t Algebra::bytetimes(const bytePoly b1, const bytePoly b2) {
   // First, we need to make polynomial representations of the bytes.
   poly p1 = bytepolytopoly(b1);
   poly p2 = bytepolytopoly(b2);
@@ -214,7 +213,7 @@ uint8_t Algebra::bytetimes(const bytePoly& b1, const bytePoly& b2) {
   return polytobyte(polytobytepoly(r));
 }
 
-void Algebra::printByte(const bytePoly& b, const std::string name) {
+void Algebra::printByte(const bytePoly b, const std::string name) {
   std::cout << name << " = [";
   for (bool bit : b) {
     std::cout << bit;
@@ -222,7 +221,7 @@ void Algebra::printByte(const bytePoly& b, const std::string name) {
   std::cout << "]" << std::endl;
 }
 
-void Algebra::printPoly(const poly& p, const std::string name) {
+void Algebra::printPoly(const poly p, const std::string name) {
   std::cout << name << " = [";
   for (bool bit : p) {
     std::cout << bit;
