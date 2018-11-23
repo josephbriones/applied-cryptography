@@ -8,7 +8,7 @@ CBCMode::CBCMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
 std::string CBCMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
-  pad(plain);
+  pad(&plain);
   Block temp = IV;
 
   for (Block block : plain) {
@@ -38,6 +38,7 @@ std::string CBCMode::decrypt(const std::string ciphertxt) {
     temp = block;
   }
 
-  invPad(plain);
+  invPad(&plain);
+  
   return blocksToText(plain);
 }

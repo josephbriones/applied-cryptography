@@ -1,6 +1,3 @@
-// Main driver for AES under the various modes of operation.
-
-// TODO: includes.
 #include <iostream>
 #include <string>
 

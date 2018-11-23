@@ -1,19 +1,22 @@
+#include <cassert>
+
 #include "aes.h"
 #include "algebra.h"
 
 AES::AES(std::vector<uint32_t> * key) :
   key(key) {
-    assert(key->size() == 4 || key->size() == 6 || key->size() == 8);
+  assert(key->size() == 4 || key->size() == 6 || key->size() == 8);
 }
 
 std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
-  
-  for(unsigned int row = 0; row<plainBlock.size()/4; ++row){
-    for(unsigned int col = 0; col<plainBlock.size()/4; ++col){
+  // Load the input block into AES's state.
+  for (unsigned int row = 0; row < plainBlock.size() / 4; ++row) {
+    for (unsigned int col = 0; col < plainBlock.size() / 4; ++col) {
       state[row][col] = plainBlock[row + 4*col];
     }
   }
 
+  // Perform the forward AES cipher.
   addRoundKey(0);
   for (unsigned int round = 1; round < (key->size() + 6) - 1; ++round) {
     subBytes();
@@ -25,25 +28,28 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
   shiftRows();
   addRoundKey(key->size() + 6);
 
-  std::vector<uint8_t> encryptedBlock;
-  for(unsigned int col = 0; col<4; ++col){
-    for(unsigned int row = 0; row<4; ++row){
-      encryptedBlock.push_back(state[row][col]);
+  // Unpack AES's state into the output block.
+  std::vector<uint8_t> cipherBlock;
+  for (unsigned int col = 0; col < 4; ++col) {
+    for (unsigned int row = 0; row < 4; ++row) {
+      cipherBlock.push_back(state[row][col]);
     }
   }
-  return encryptedBlock;
+
+  return cipherBlock;
 }
 
 std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
-  
-  for(unsigned int row = 0; row<cipherBlock.size()/4; ++row){
-    for(unsigned int col = 0; col<cipherBlock.size()/4; ++col){
+  // Load the input block into AES's state.
+  for (unsigned int row = 0; row < cipherBlock.size() / 4; ++row) {
+    for (unsigned int col = 0; col < cipherBlock.size() / 4; ++col) {
       state[row][col] = cipherBlock[row + 4*col];
     }
   }
 
+  // Perform the inverse AES cipher.
   addRoundKey(key->size() + 6);
-  for (unsigned int round = (key->size() + 6) - 1; round > 0; --round){
+  for (unsigned int round = (key->size() + 6) - 1; round > 0; --round) {
     invShiftRows();
     invSubBytes();
     addRoundKey(round);
@@ -53,13 +59,15 @@ std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
   invSubBytes();
   addRoundKey(0);
 
-  std::vector<uint8_t> decryptedBlock;
-  for(unsigned int col = 0; col<4; ++col){
-    for(unsigned int row = 0; row<4; ++row){
-      decryptedBlock.push_back(state[row][col]);
+  // Unpack AES's state into the output block.
+  std::vector<uint8_t> plainBlock;
+  for (unsigned int col = 0; col < 4; ++col) {
+    for (unsigned int row = 0; row < 4; ++row) {
+      plainBlock.push_back(state[row][col]);
     }
   }
-  return decryptedBlock;
+
+  return plainBlock;
 }
 
 void AES::subBytes() {

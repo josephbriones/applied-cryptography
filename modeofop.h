@@ -2,6 +2,7 @@
 #define MODEOFOP_H
 
 #include <string>
+#include <set>
 #include <vector>
 
 #include "aes.h"
@@ -28,21 +29,21 @@ class ModeOfOp {
   typedef std::vector<uint8_t> Block;
 
   // Properties.
-  unsigned int numWordsInBlock;        // Block size, in # of words.
-  std::vector<uint32_t> key;   // Key for the block cipher.
-  AES * aes;                   // Pointer to AES block cipher.
-  std::vector<Block> usedIVs;  // Container of all previously used IVs.
-  Block IV;                    // Current IV.
+  unsigned int numWordsInBlock;  // Block size, in # of words.
+  std::vector<uint32_t> key;     // Key for the block cipher.
+  AES * aes;                     // Pointer to AES block cipher.
+  std::set<Block> usedIVs;       // Container of all previously used IVs.
+  Block IV;                      // Current IV.
 
   // Utility functions for loading and saving the list of previously used
   // initialization vectors.
-  void loadIVs(std::string fname);
-  void saveIVs(std::string fname);
+  void loadIVs(const std::string fname);
+  void saveIVs(const std::string fname);
 
   // Functions for generating unpredictable or unique initialization vectors.
   // Unpredictable IVs are obtained through random number generation. Unique IVs
-  // are also obtained through random number generation, but ensure that neither
-  // the IV nor any of IV+1, IV+2, IV+(numIVs-1) have ever been used before.
+  // are also obtained through random number generation, but ensure that none
+  // of IV, IV+1, IV+2, ..., IV+(numIVs-1) have ever been used before.
   void unpredictableIV();
   void uniqueIV(unsigned int numIVs);
 
@@ -54,8 +55,8 @@ class ModeOfOp {
   // X = blockSize - (|text| mod blockSize) copies of X, unless X = 0, in which
   // case blockSize copies of blockSize are appended instead). invPad() simply
   // does the opposite, removing any padding.
-  void pad(std::vector<Block>& blocks);
-  void invPad(std::vector<Block>& blocks);
+  void pad(std::vector<Block> * blocks);
+  void invPad(std::vector<Block> * blocks);
 
   // Utility function for getting random bytes and words from /dev/random. The
   // number of bytes or words to create is passed as input.
