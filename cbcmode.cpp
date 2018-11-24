@@ -5,6 +5,10 @@ CBCMode::CBCMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   unpredictableIV();
 }
 
+CBCMode::~CBCMode(){
+  //calls parent class destructor by default
+}
+
 std::string CBCMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
@@ -39,6 +43,6 @@ std::string CBCMode::decrypt(const std::string ciphertxt) {
   }
 
   invPad(&plain);
-  
+
   return blocksToText(plain);
 }

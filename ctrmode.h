@@ -10,7 +10,7 @@ class CTRMode : public ModeOfOp {
   CTRMode(unsigned int numWordsInBlock, unsigned int numWordsInKey);
 
   // TODO: need a destructor to call the parent destructor.
-
+ ~CTRMode();
   // Override functions for encrypting or decrypting some text according to the
   // counter mode of operation.
   std::string encrypt(const std::string plaintxt) override final;

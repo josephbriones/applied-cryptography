@@ -10,7 +10,7 @@ class OFBMode : public ModeOfOp {
   OFBMode(unsigned int numWordsInBlock, unsigned int numWordsInKey);
 
   // TODO: need a destructor to call the parent destructor.
-
+  ~OFBMode();
   // Override functions for encrypting or decrypting some text according to the
   // output feedback mode of operation.
   std::string encrypt(const std::string plaintxt) override final;

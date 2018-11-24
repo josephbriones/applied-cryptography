@@ -5,6 +5,10 @@ OFBMode::OFBMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   uniqueIV(1);
 }
 
+OFBMode::~OFBMode(){
+  //calls parent class destructor by default
+}
+
 std::string OFBMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
@@ -13,7 +17,7 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
 
   for (Block block : plain) {
     temp = aes->encrypt(temp);
-    //uniqueIV.push_back(temp);
+    usedIVs.push_back(temp);
     for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
@@ -32,7 +36,7 @@ std::string OFBMode::decrypt(const std::string ciphertxt) {
 
   for (Block block : cipher) {
     temp = aes->encrypt(temp);
-    //uniqueIV.push_back(temp);
+    usedIVs.push_back(temp);
     for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
