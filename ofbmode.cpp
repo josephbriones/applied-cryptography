@@ -17,7 +17,7 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
 
   for (Block block : plain) {
     temp = aes->encrypt(temp);
-    usedIVs.push_back(temp);
+    usedIVs.insert(temp);
     for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }
@@ -36,7 +36,7 @@ std::string OFBMode::decrypt(const std::string ciphertxt) {
 
   for (Block block : cipher) {
     temp = aes->encrypt(temp);
-    usedIVs.push_back(temp);
+    usedIVs.insert(temp);
     for (unsigned int i = 0; i < block.size(); ++i) {
       x[i] = temp[i] ^ block[i];
     }

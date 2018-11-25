@@ -1,5 +1,6 @@
 #include <cassert>
 
+
 #include "aes.h"
 #include "algebra.h"
 
@@ -15,9 +16,10 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
       state[row][col] = plainBlock[row + 4*col];
     }
   }
-
+ 
   // Perform the forward AES cipher.
   addRoundKey(0);
+  
   for (unsigned int round = 1; round < (key->size() + 6) - 1; ++round) {
     subBytes();
     shiftRows();
@@ -92,7 +94,7 @@ void AES::shiftRows() {
 
     // Cyclic shift each element 'row' elements to the left.
     for (unsigned int col = 0; col < 4; ++col) {
-      state[row][col] = r[(col - row + 4) % 4];
+      state[row][col] = r[(col + row) % 4];
     }
   }
 }
@@ -103,7 +105,7 @@ void AES::invShiftRows() {
 
     // Cyclic shift each element 'row' elements to the right.
     for (unsigned int col = 0; col < 4; ++col) {
-      state[row][col] = r[(col + row) % 4];
+      state[row][col] = r[(col - row + 4) % 4];
     }
   }
 }
@@ -112,16 +114,17 @@ void AES::mixColumns() {
   for (unsigned int col = 0; col < 4; ++col) {
     // Copy the current column into a temporary array of bytes.
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
-
+    
     // Multiply s(x) by a(x) = {03}x^3+ {01}x^2 + {01}x + {02}.
-    state[0][col] = Algebra::bytetimes(2, s[0]) ^ Algebra::bytetimes(3, s[1])
+   
+    state[0][col] = Algebra::bytetimes(0x02, s[0]) ^ Algebra::bytetimes(0x03, s[1])
                     ^ s[2] ^ s[3];
-    state[1][col] = s[0] ^ Algebra::bytetimes(2, s[1])
-                    ^ Algebra::bytetimes(3, s[2]) ^ s[3];
-    state[2][col] = s[0] ^ s[1] ^ Algebra::bytetimes(2, s[2])
-                    ^ Algebra::bytetimes(3, s[3]);
-    state[3][col] = Algebra::bytetimes(3, s[0]) ^ s[1] ^ s[2]
-                    ^ Algebra::bytetimes(2, s[3]);
+    state[1][col] = s[0] ^ Algebra::bytetimes(0x02, s[1])
+                    ^ Algebra::bytetimes(0x03, s[2]) ^ s[3];
+    state[2][col] = s[0] ^ s[1] ^ Algebra::bytetimes(0x02, s[2])
+                    ^ Algebra::bytetimes(0x03, s[3]);
+    state[3][col] = Algebra::bytetimes(0x03, s[0]) ^ s[1] ^ s[2]
+                    ^ Algebra::bytetimes(0x02, s[3]);
   }
 }
 
@@ -131,14 +134,14 @@ void AES::invMixColumns() {
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
 
     // Multiply s(x) by a-1(x) = {0b}x^3+ {0d}x^2+ {09}x + {0e}.
-    state[0][col] = Algebra::bytetimes(14, s[0]) ^ Algebra::bytetimes(11, s[1])
-                  ^ Algebra::bytetimes(13, s[2]) ^ Algebra::bytetimes(9, s[3]);
-    state[1][col] = Algebra::bytetimes(9, s[0]) ^ Algebra::bytetimes(14, s[1])
-                  ^ Algebra::bytetimes(11, s[2]) ^ Algebra::bytetimes(13, s[3]);
-    state[2][col] = Algebra::bytetimes(13, s[0]) ^ Algebra::bytetimes(9, s[1])
-                  ^ Algebra::bytetimes(14, s[2]) ^ Algebra::bytetimes(11, s[3]);
-    state[3][col] = Algebra::bytetimes(11, s[0]) ^ Algebra::bytetimes(13, s[1])
-                  ^ Algebra::bytetimes(9, s[2]) ^ Algebra::bytetimes(14, s[3]);
+    state[0][col] = Algebra::bytetimes(0x0e, s[0]) ^ Algebra::bytetimes(0x0b, s[1])
+                  ^ Algebra::bytetimes(0x0d, s[2]) ^ Algebra::bytetimes(0x09, s[3]);
+    state[1][col] = Algebra::bytetimes(0x09, s[0]) ^ Algebra::bytetimes(0x0e, s[1])
+                  ^ Algebra::bytetimes(0x0b, s[2]) ^ Algebra::bytetimes(0x0d, s[3]);
+    state[2][col] = Algebra::bytetimes(0x0d, s[0]) ^ Algebra::bytetimes(0x09, s[1])
+                  ^ Algebra::bytetimes(0x0e, s[2]) ^ Algebra::bytetimes(0x0b, s[3]);
+    state[3][col] = Algebra::bytetimes(0x0b, s[0]) ^ Algebra::bytetimes(0x0d, s[1])
+                  ^ Algebra::bytetimes(0x09, s[2]) ^ Algebra::bytetimes(0x0e, s[3]);
   }
 }
 
@@ -233,3 +236,4 @@ uint32_t AES::rcon(const uint32_t r) {
   uint32_t rcon = b;
   return rcon << 24;
 }
+

@@ -106,27 +106,22 @@ void ModeOfOp::uniqueIV(unsigned int numIVs) {
 std::vector<ModeOfOp::Block> ModeOfOp::textToBlocks(std::string text) {
   std::vector<Block> blocks;
   Block block;
-
   for (unsigned int i = 0; i < text.length(); ++i) {
     block.push_back(*(reinterpret_cast<uint8_t*>(&text[i])));
-
     if (block.size() == 4 * numWordsInBlock) {
       blocks.push_back(block);
       block.clear();
     }
   }
-
   return blocks;
 }
 
 std::string ModeOfOp::blocksToText(const std::vector<ModeOfOp::Block> blocks) {
-  std::string str = "";
+  std::string str = "";  
   for (Block block : blocks) {
-    for (uint8_t byte : block) {
-      str += *(reinterpret_cast<char*>(&byte));
-    }
+    std::string append(block.begin(), block.end());
+    str += append;
   }
-
   return str;
 }
 
@@ -167,6 +162,7 @@ void ModeOfOp::invPad(std::vector<Block> * blocks) {
     }
     blocks->push_back(lastBlock);
   }
+  
 }
 
 std::vector<uint8_t> ModeOfOp::randBytes(const unsigned int numBytes) {
