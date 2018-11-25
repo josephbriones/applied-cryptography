@@ -16,7 +16,7 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
 
   for (Block block : plain) {
     temp = aes->encrypt(ctr);
-
+    
     //converting counter to int to increment to next counter
     unsigned int ctrAsInt = 0;
     for (unsigned int i = 1; i <= ctr.size(); ++i) {
@@ -24,7 +24,7 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
       ctrAsInt += ctr[ctr.size() - i];
     }
     ctrAsInt++;
-
+    
     //converting new counter to block
     Block tempBlock;
     unsigned int tempInt = (ctrAsInt) % (1 << (32 * numWordsInBlock));
@@ -37,9 +37,10 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
     ctr = tempBlock;
 
     for (unsigned int i = 0; i < block.size(); ++i) {
-      x[i] = temp[i] ^ block[i];
+      x.push_back(temp[i] ^ block[i]);
     }
     cipher.push_back(x);
+    x.clear();
   }
   cipher.push_back(IV);
   return blocksToText(cipher);
@@ -74,9 +75,10 @@ std::string CTRMode::decrypt(const std::string ciphertxt) {
     ctr = tempBlock;
     
     for (unsigned int i = 0; i < block.size(); ++i) {
-      x[i] = temp[i] ^ block[i];
+      x.push_back(temp[i] ^ block[i]);
     }
     plain.push_back(x);
+    x.clear();
   }
 
   return blocksToText(plain);

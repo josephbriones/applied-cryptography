@@ -19,9 +19,10 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
     temp = aes->encrypt(temp);
     usedIVs.insert(temp);
     for (unsigned int i = 0; i < block.size(); ++i) {
-      x[i] = temp[i] ^ block[i];
+      x.push_back(temp[i] ^ block[i]);
     }
     cipher.push_back(x);
+    x.clear();
   }
   cipher.push_back(IV);
   return blocksToText(cipher);
@@ -38,9 +39,10 @@ std::string OFBMode::decrypt(const std::string ciphertxt) {
     temp = aes->encrypt(temp);
     usedIVs.insert(temp);
     for (unsigned int i = 0; i < block.size(); ++i) {
-      x[i] = temp[i] ^ block[i];
+      x.push_back(temp[i] ^ block[i]);
     }
     plain.push_back(x);
+    x.clear();
   }
 
   return blocksToText(plain);
