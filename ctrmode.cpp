@@ -3,9 +3,7 @@
 CTRMode::CTRMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   ModeOfOp(numWordsInBlock, numWordsInKey) {}
 
-  CTRMode::~CTRMode(){
-    //calls parent class destructor by default
-  }
+CTRMode::~CTRMode() {}
 
 void CTRMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
@@ -17,31 +15,14 @@ void CTRMode::encrypt(const std::string plaintxt) {
   cipher.push_back(IV);
   for (Block block : plain) {
     temp = aes->encrypt(ctr);
-
-    //converting counter to int to increment to next counter
-    unsigned int ctrAsInt = 0;
-    for (unsigned int i = 1; i <= ctr.size(); ++i) {
-      ctrAsInt = ctrAsInt << 8;
-      ctrAsInt += ctr[ctr.size() - i];
-    }
-    ctrAsInt++;
-
-    //converting new counter to block
-    Block tempBlock;
-    unsigned int tempInt = (ctrAsInt) % (1 << (32 * numWordsInBlock));
-    while (tempInt != 0) {
-      uint8_t byte = tempInt % 256;
-      tempBlock.emplace(tempBlock.begin(), byte);
-      tempInt = tempInt / 256;
-    }
-    //counter updated to next counter for next round
-    ctr = tempBlock;
-
     for (unsigned int i = 0; i < block.size(); ++i) {
       x.push_back(temp[i] ^ block[i]);
     }
     cipher.push_back(x);
     x.clear();
+
+    // Get the counter for the next round.
+    blockInc(&ctr);
   }
 
   // Save cipher blocks to file.
@@ -60,30 +41,14 @@ std::string CTRMode::decrypt() {
 
   for (Block block : cipher) {
     temp = aes->encrypt(ctr);
-    //converting counter to int to increment to next counter
-    unsigned int ctrAsInt = 0;
-    for (unsigned int i = 1; i <= ctr.size(); ++i) {
-      ctrAsInt = ctrAsInt << 8;
-      ctrAsInt += ctr[ctr.size() - i];
-    }
-    ctrAsInt++;
-
-    //converting new counter to block
-    Block tempBlock;
-    unsigned int tempInt = (ctrAsInt) % (1 << (32 * numWordsInBlock));
-    while (tempInt != 0) {
-      uint8_t byte = tempInt % 256;
-      tempBlock.emplace(tempBlock.begin(), byte);
-      tempInt = tempInt / 256;
-    }
-    //counter updated to next counter for next round
-    ctr = tempBlock;
-
     for (unsigned int i = 0; i < block.size(); ++i) {
       x.push_back(temp[i] ^ block[i]);
     }
     plain.push_back(x);
     x.clear();
+
+    // Get counter for next round.
+    blockInc(&ctr);
   }
 
   return blocksToText(plain);

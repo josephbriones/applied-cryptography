@@ -1,12 +1,8 @@
-// Utility functions for computing algebraic functions for AES.
-
 #ifndef ALGEBRA_H
 #define ALGEBRA_H
 
 #include <array>
 #include <vector>
-
-#include <string>  // DEBUG: Only for debug.
 
 class Algebra {
  public:
@@ -62,10 +58,6 @@ class Algebra {
   static poly polytimes(const poly p1, const poly p2);
   static void polydiv(poly p1, const poly p2, poly* q, poly* r);
   static uint8_t bytetimes(const bytePoly b1, const bytePoly b2);
-
-  // DEBUG FUNCTIONS.
-  static void printByte(const bytePoly b, const std::string name);
-  static void printPoly(const poly p, const std::string name);
 };
 
 #endif  // ALGEBRA_H

@@ -212,19 +212,3 @@ uint8_t Algebra::bytetimes(const bytePoly b1, const bytePoly b2) {
 
   return polytobyte(polytobytepoly(r));
 }
-
-void Algebra::printByte(const bytePoly b, const std::string name) {
-  std::cout << name << " = [";
-  for (bool bit : b) {
-    std::cout << bit;
-  }
-  std::cout << "]" << std::endl;
-}
-
-void Algebra::printPoly(const poly p, const std::string name) {
-  std::cout << name << " = [";
-  for (bool bit : p) {
-    std::cout << bit;
-  }
-  std::cout << "]" << std::endl;
-}

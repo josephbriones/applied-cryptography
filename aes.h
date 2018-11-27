@@ -25,7 +25,7 @@ class AES {
   typedef uint8_t State[4][4];
 
   // Properties.
-  State state;  // The 4x4 byte state matrix.
+  State state;                  // The 4x4 byte state matrix.
   std::vector<uint32_t> * key;  // The 4, 6, or 8 word key.
 
   // Performs a nonlinear byte substitution of each byte of the state

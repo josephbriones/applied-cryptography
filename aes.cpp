@@ -1,13 +1,12 @@
-#include <cassert>
-
-#include <iostream> // DEBUG
-
 #include "aes.h"
 #include "algebra.h"
 
 AES::AES(std::vector<uint32_t> * key) :
   key(key) {
-  assert(key->size() == 4 || key->size() == 6 || key->size() == 8);
+  if (key->size() != 4 && key->size() != 6 && key->size() != 8) {
+    // Key was an invalid size. Fail without error.
+    exit(EXIT_FAILURE);
+  }
 }
 
 std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
@@ -20,8 +19,7 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
 
   // Perform the forward AES cipher.
   addRoundKey(0);
-
-  for (unsigned int round = 1; round < (key->size() + 6) - 1; ++round) {
+  for (unsigned int round = 1; round < (key->size() + 6); ++round) {
     subBytes();
     shiftRows();
     mixColumns();
@@ -117,9 +115,8 @@ void AES::mixColumns() {
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
 
     // Multiply s(x) by a(x) = {03}x^3+ {01}x^2 + {01}x + {02}.
-
-    state[0][col] = Algebra::bytetimes(0x02, s[0]) ^ Algebra::bytetimes(0x03, s[1])
-                    ^ s[2] ^ s[3];
+    state[0][col] = Algebra::bytetimes(0x02, s[0])
+                    ^ Algebra::bytetimes(0x03, s[1]) ^ s[2] ^ s[3];
     state[1][col] = s[0] ^ Algebra::bytetimes(0x02, s[1])
                     ^ Algebra::bytetimes(0x03, s[2]) ^ s[3];
     state[2][col] = s[0] ^ s[1] ^ Algebra::bytetimes(0x02, s[2])
@@ -135,14 +132,22 @@ void AES::invMixColumns() {
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
 
     // Multiply s(x) by a-1(x) = {0b}x^3+ {0d}x^2+ {09}x + {0e}.
-    state[0][col] = Algebra::bytetimes(0x0e, s[0]) ^ Algebra::bytetimes(0x0b, s[1])
-                  ^ Algebra::bytetimes(0x0d, s[2]) ^ Algebra::bytetimes(0x09, s[3]);
-    state[1][col] = Algebra::bytetimes(0x09, s[0]) ^ Algebra::bytetimes(0x0e, s[1])
-                  ^ Algebra::bytetimes(0x0b, s[2]) ^ Algebra::bytetimes(0x0d, s[3]);
-    state[2][col] = Algebra::bytetimes(0x0d, s[0]) ^ Algebra::bytetimes(0x09, s[1])
-                  ^ Algebra::bytetimes(0x0e, s[2]) ^ Algebra::bytetimes(0x0b, s[3]);
-    state[3][col] = Algebra::bytetimes(0x0b, s[0]) ^ Algebra::bytetimes(0x0d, s[1])
-                  ^ Algebra::bytetimes(0x09, s[2]) ^ Algebra::bytetimes(0x0e, s[3]);
+    state[0][col] = Algebra::bytetimes(0x0e, s[0])
+                    ^ Algebra::bytetimes(0x0b, s[1])
+                    ^ Algebra::bytetimes(0x0d, s[2])
+                    ^ Algebra::bytetimes(0x09, s[3]);
+    state[1][col] = Algebra::bytetimes(0x09, s[0])
+                    ^ Algebra::bytetimes(0x0e, s[1])
+                    ^ Algebra::bytetimes(0x0b, s[2])
+                    ^ Algebra::bytetimes(0x0d, s[3]);
+    state[2][col] = Algebra::bytetimes(0x0d, s[0])
+                    ^ Algebra::bytetimes(0x09, s[1])
+                    ^ Algebra::bytetimes(0x0e, s[2])
+                    ^ Algebra::bytetimes(0x0b, s[3]);
+    state[3][col] = Algebra::bytetimes(0x0b, s[0])
+                    ^ Algebra::bytetimes(0x0d, s[1])
+                    ^ Algebra::bytetimes(0x09, s[2])
+                    ^ Algebra::bytetimes(0x0e, s[3]);
   }
 }
 
@@ -234,6 +239,5 @@ uint32_t AES::rcon(const uint32_t r) {
     b = Algebra::xtimes(b);
   }
 
-  uint32_t rcon = b;
-  return rcon << 24;
+  return b << 24;
 }

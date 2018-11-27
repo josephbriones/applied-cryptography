@@ -35,7 +35,7 @@ class ModeOfOp {
   std::set<Block> usedIVs;       // Container of all previously used IVs.
   Block IV;                      // Current IV.
 
-  // Utility functions for saving and loading the encrypted blocks.
+  // Utility functions for loading and saving the encrypted blocks.
   void loadBlocks(const std::string fname, std::vector<Block> * blocks);
   void saveBlocks(const std::string fname, const std::vector<Block> blocks);
 
@@ -66,6 +66,10 @@ class ModeOfOp {
   // number of bytes or words to create is passed as input.
   std::vector<uint8_t> randBytes(const unsigned int numBytes);
   std::vector<uint32_t> randWords(const unsigned int numWords);
+
+  // Utility function for incrementing the integer value in [0, 2^(#words * 16))
+  // expressed by a Block by 1.
+  void blockInc(Block * block);
 };
 
 #endif  // MODEOFOP_H

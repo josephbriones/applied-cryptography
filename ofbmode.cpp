@@ -5,9 +5,7 @@ OFBMode::OFBMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   uniqueIV(1);
 }
 
-OFBMode::~OFBMode(){
-  //calls parent class destructor by default
-}
+OFBMode::~OFBMode() {}
 
 void OFBMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;

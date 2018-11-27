@@ -1,31 +1,12 @@
 #include <fstream>
 
-#include <iostream>  // DEBUG
-
 #include "modeofop.h"
 
 ModeOfOp::ModeOfOp(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   numWordsInBlock(numWordsInBlock) {
   key = randWords(numWordsInKey);
-  // DEBUG
-  std::cout << "Key: ";
-  for (uint32_t word : key) {
-    std::cout << std::hex << +word << ",";
-  }
-  std::cout << std::endl;
-
   aes = new AES(&key);
   loadIVs("data/used_ivs");
-
-  // DEBUG
-  std::cout << "Used IVs:" << std::endl;
-  for (Block usedIV : usedIVs) {
-    std::cout << "[";
-    for (uint8_t byte : usedIV) {
-      std::cout << std::hex << +byte << ",";
-    }
-    std::cout << "]" << std::endl;
-  }
 }
 
 ModeOfOp::~ModeOfOp() {
@@ -128,38 +109,25 @@ void ModeOfOp::uniqueIV(unsigned int numIVs) {
   while (1) {
     IV = randBytes(4 * numWordsInBlock);
 
-    // Convert the candidate initialization vector into an integer.
-    unsigned int ivAsInt = 0;
-    for (unsigned int i = 1; i <= IV.size(); ++i) {
-      ivAsInt = ivAsInt << 8;
-      ivAsInt += IV[IV.size() - i];
-    }
-
     // Check if IV, IV+1, IV+2, ..., IV+(numIVs-1) have ever been used before.
     bool allUnique = true;
-    std::vector<Block> candidateIVs;
+    std::vector<Block> candidates;
+    Block candidate = IV;
     for (unsigned int i = 0; i < numIVs; ++i) {
-      // Convert IV + 1 into a Block.
-      Block tempBlock;
-      unsigned int tempInt = (ivAsInt + i) % (1 << (32 * numWordsInBlock));
-      while (tempInt != 0) {
-        uint8_t byte = tempInt % 256;
-        tempBlock.emplace(tempBlock.begin(), byte);
-        tempInt = tempInt / 256;
-      }
-      candidateIVs.push_back(tempBlock);
-
-      // Search the used initialization vectors for the block version of IV + 1.
-      if (usedIVs.find(tempBlock) != usedIVs.end()) {
+      // If IV + i is in the used initialization vectors, break.
+      if (usedIVs.find(candidate) != usedIVs.end()) {
         allUnique = false;
         break;
+      } else {
+        candidates.push_back(candidate);
+        blockInc(&candidate);
       }
     }
 
-    // Once a unique range is found, record them and break out of the loop.
+    // If a unique range has been found, record them and finish.
     if (allUnique) {
-      for (Block candidateIV : candidateIVs) {
-        usedIVs.insert(candidateIV);
+      for (Block candidate : candidates) {
+        usedIVs.insert(candidate);
       }
       break;
     }
@@ -279,4 +247,17 @@ std::vector<uint32_t> ModeOfOp::randWords(const unsigned int numWords) {
   }
 
   return rWords;
+}
+
+void ModeOfOp::blockInc(Block * block) {
+  // Starting at the least significant byte, add one. If the byte becomes 0,
+  // carry the increment to the next most significant bit until either the
+  // increment does not result in a carry-over or the entire block carries over.
+  for (unsigned int i = 1; i <= block->size(); ++i) {
+    unsigned int index = block->size() - i;
+    block->at(index)++;
+    if (block->at(index) != 0) {
+      break;
+    }
+  }
 }
