@@ -9,12 +9,13 @@ OFBMode::~OFBMode(){
   //calls parent class destructor by default
 }
 
-std::string OFBMode::encrypt(const std::string plaintxt) {
+void OFBMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
   Block temp = IV;
   Block x;
 
+  cipher.push_back(IV);
   for (Block block : plain) {
     temp = aes->encrypt(temp);
     usedIVs.insert(temp);
@@ -24,15 +25,19 @@ std::string OFBMode::encrypt(const std::string plaintxt) {
     cipher.push_back(x);
     x.clear();
   }
-  cipher.push_back(IV);
-  return blocksToText(cipher);
+
+  // Save cipher blocks to file.
+  saveBlocks("data/cipher", cipher);
 }
 
-std::string OFBMode::decrypt(const std::string ciphertxt) {
+std::string OFBMode::decrypt() {
+  // Load cipher blocks from file.
   std::vector<Block> plain;
-  std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block temp = cipher.back();
-  cipher.pop_back();
+  std::vector<Block> cipher;
+  loadBlocks("data/cipher", &cipher);
+
+  Block temp = cipher.front();
+  cipher.erase(cipher.begin());
   Block x;
 
   for (Block block : cipher) {

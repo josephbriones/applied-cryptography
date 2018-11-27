@@ -13,8 +13,8 @@ class CTRMode : public ModeOfOp {
  ~CTRMode();
   // Override functions for encrypting or decrypting some text according to the
   // counter mode of operation.
-  std::string encrypt(const std::string plaintxt) override final;
-  std::string decrypt(const std::string ciphertxt) override final;
+  void encrypt(const std::string plaintxt) override final;
+  std::string decrypt() override final;
 };
 
 #endif  // CTRMODE_H

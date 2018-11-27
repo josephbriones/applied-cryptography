@@ -19,8 +19,8 @@ class ModeOfOp {
 
   // Pure virtual functions for encrypting or decrypting some text; must be
   // overridden by child classes.
-  virtual std::string encrypt(const std::string plaintxt) = 0;
-  virtual std::string decrypt(const std::string ciphertxt) = 0;
+  virtual void encrypt(const std::string plaintxt) = 0;
+  virtual std::string decrypt() = 0;
 
  protected:
   // Convenience typedef for representing blocks as vectors of bytes (uint8_t),
@@ -34,6 +34,10 @@ class ModeOfOp {
   AES * aes;                     // Pointer to AES block cipher.
   std::set<Block> usedIVs;       // Container of all previously used IVs.
   Block IV;                      // Current IV.
+
+  // Utility functions for saving and loading the encrypted blocks.
+  void loadBlocks(const std::string fname, std::vector<Block> * blocks);
+  void saveBlocks(const std::string fname, const std::vector<Block> blocks);
 
   // Utility functions for loading and saving the list of previously used
   // initialization vectors.

@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <iostream> // DEBUG
 
 #include "aes.h"
 #include "algebra.h"
@@ -11,15 +12,15 @@ AES::AES(std::vector<uint32_t> * key) :
 
 std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
   // Load the input block into AES's state.
-  for (unsigned int row = 0; row < plainBlock.size() / 4; ++row) {
-    for (unsigned int col = 0; col < plainBlock.size() / 4; ++col) {
+  for (unsigned int row = 0; row < 4; ++row) {
+    for (unsigned int col = 0; col < 4; ++col) {
       state[row][col] = plainBlock[row + 4*col];
     }
   }
- 
+
   // Perform the forward AES cipher.
   addRoundKey(0);
-  
+
   for (unsigned int round = 1; round < (key->size() + 6) - 1; ++round) {
     subBytes();
     shiftRows();
@@ -43,8 +44,8 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
 
 std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
   // Load the input block into AES's state.
-  for (unsigned int row = 0; row < cipherBlock.size() / 4; ++row) {
-    for (unsigned int col = 0; col < cipherBlock.size() / 4; ++col) {
+  for (unsigned int row = 0; row < 4; ++row) {
+    for (unsigned int col = 0; col < 4; ++col) {
       state[row][col] = cipherBlock[row + 4*col];
     }
   }
@@ -114,9 +115,9 @@ void AES::mixColumns() {
   for (unsigned int col = 0; col < 4; ++col) {
     // Copy the current column into a temporary array of bytes.
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
-    
+
     // Multiply s(x) by a(x) = {03}x^3+ {01}x^2 + {01}x + {02}.
-   
+
     state[0][col] = Algebra::bytetimes(0x02, s[0]) ^ Algebra::bytetimes(0x03, s[1])
                     ^ s[2] ^ s[3];
     state[1][col] = s[0] ^ Algebra::bytetimes(0x02, s[1])
@@ -236,4 +237,3 @@ uint32_t AES::rcon(const uint32_t r) {
   uint32_t rcon = b;
   return rcon << 24;
 }
-

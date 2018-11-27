@@ -13,8 +13,8 @@ class OFBMode : public ModeOfOp {
   ~OFBMode();
   // Override functions for encrypting or decrypting some text according to the
   // output feedback mode of operation.
-  std::string encrypt(const std::string plaintxt) override final;
-  std::string decrypt(const std::string ciphertxt) override final;
+  void encrypt(const std::string plaintxt) override final;
+  std::string decrypt() override final;
 };
 
 #endif  // OFBMODE_H

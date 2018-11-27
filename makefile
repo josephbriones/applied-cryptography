@@ -7,7 +7,7 @@ all:
 	$(CC) $(FLAGS) $(SOURCES) -o $(EXE)
 
 run:
-	./$(EXE) dummymessage 4 ofb
+	./$(EXE) helloworldaescpp01234567891011 4 cbc
 
 clean:
 	rm -rf $(EXE) *.o

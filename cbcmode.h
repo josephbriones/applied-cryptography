@@ -9,12 +9,13 @@ class CBCMode : public ModeOfOp {
   // and the # of words per key.
   CBCMode(unsigned int numWordsInBlock, unsigned int numWordsInKey);
 
-  // TODO: need a destructor to call the parent destructor.
+  // Default destructor that calls the parent destructor.
   ~CBCMode();
+
   // Override functions for encrypting or decrypting some text according to the
   // cipher block chaining mode of operation.
-  std::string encrypt(const std::string plaintxt) override final;
-  std::string decrypt(const std::string ciphertxt) override final;
+  void encrypt(const std::string plaintxt) override final;
+  std::string decrypt() override final;
 };
 
 #endif  // CBCMODE_H

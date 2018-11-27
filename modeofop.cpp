@@ -1,17 +1,83 @@
 #include <fstream>
 
+#include <iostream>  // DEBUG
+
 #include "modeofop.h"
 
 ModeOfOp::ModeOfOp(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   numWordsInBlock(numWordsInBlock) {
   key = randWords(numWordsInKey);
+  // DEBUG
+  std::cout << "Key: ";
+  for (uint32_t word : key) {
+    std::cout << std::hex << +word << ",";
+  }
+  std::cout << std::endl;
+
   aes = new AES(&key);
-  loadIVs("data/old_ivs");
+  loadIVs("data/used_ivs");
+
+  // DEBUG
+  std::cout << "Used IVs:" << std::endl;
+  for (Block usedIV : usedIVs) {
+    std::cout << "[";
+    for (uint8_t byte : usedIV) {
+      std::cout << std::hex << +byte << ",";
+    }
+    std::cout << "]" << std::endl;
+  }
 }
 
 ModeOfOp::~ModeOfOp() {
   delete aes;
-  saveIVs("data/old_ivs");
+  saveIVs("data/used_ivs");
+}
+
+void ModeOfOp::loadBlocks(const std::string fname,
+                          std::vector<Block> * blocks) {
+  std::fstream blockReader(fname, std::fstream::in | std::fstream::binary);
+  if (blockReader) {
+    Block block;
+    uint8_t byte = 0;
+
+    // First, collect all complete blocks.
+    while (blockReader.read(reinterpret_cast<char*>(&byte), sizeof(byte))) {
+      block.push_back(byte);
+      if (block.size() == 4 * numWordsInBlock) {  // 4 bytes = 1 word.
+        blocks->push_back(block);
+        block.clear();
+      }
+    }
+
+    // Add the last, possibly incomplete block if it exists.
+    if (!block.empty()) {
+      blocks->push_back(block);
+    }
+
+    blockReader.close();
+  }
+}
+
+void ModeOfOp::saveBlocks(const std::string fname,
+                          const std::vector<Block> blocks) {
+  std::fstream blockWriter(fname, std::fstream::out | std::fstream::binary |
+                           std::fstream::trunc);
+  if (blockWriter) {
+   for (Block block : blocks) {
+     for (uint8_t byte : block) {
+       blockWriter.write(reinterpret_cast<char*>(&byte), sizeof(byte));
+       if (blockWriter.bad()) {
+         // Writing failed. Fail without warning.
+         exit(EXIT_FAILURE);
+       }
+     }
+   }
+
+   blockWriter.close();
+  } else {
+    // Couldn't open file for writing. Fail without warning.
+    exit(EXIT_FAILURE);
+  }
 }
 
 void ModeOfOp::loadIVs(const std::string fname) {
@@ -29,9 +95,6 @@ void ModeOfOp::loadIVs(const std::string fname) {
     }
 
     IVreader.close();
-  } else {
-    // Couldn't open file for reading. Fail without warning.
-    exit(EXIT_FAILURE);
   }
 }
 
@@ -106,6 +169,8 @@ void ModeOfOp::uniqueIV(unsigned int numIVs) {
 std::vector<ModeOfOp::Block> ModeOfOp::textToBlocks(std::string text) {
   std::vector<Block> blocks;
   Block block;
+
+  // First, collect all complete blocks.
   for (unsigned int i = 0; i < text.length(); ++i) {
     block.push_back(*(reinterpret_cast<uint8_t*>(&text[i])));
     if (block.size() == 4 * numWordsInBlock) {
@@ -113,15 +178,23 @@ std::vector<ModeOfOp::Block> ModeOfOp::textToBlocks(std::string text) {
       block.clear();
     }
   }
+
+  // Add the last, possibly incomplete block if it exists.
+  if (!block.empty()) {
+    blocks.push_back(block);
+  }
+
   return blocks;
 }
 
 std::string ModeOfOp::blocksToText(const std::vector<ModeOfOp::Block> blocks) {
-  std::string str = "";  
+  std::string str = "";
   for (Block block : blocks) {
-    std::string append(block.begin(), block.end());
-    str += append;
+    for (uint8_t byte : block) {
+      str += *(reinterpret_cast<char*>(&byte));
+    }
   }
+
   return str;
 }
 
@@ -162,7 +235,6 @@ void ModeOfOp::invPad(std::vector<Block> * blocks) {
     }
     blocks->push_back(lastBlock);
   }
-  
 }
 
 std::vector<uint8_t> ModeOfOp::randBytes(const unsigned int numBytes) {

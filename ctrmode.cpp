@@ -7,16 +7,17 @@ CTRMode::CTRMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
     //calls parent class destructor by default
   }
 
-std::string CTRMode::encrypt(const std::string plaintxt) {
+void CTRMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
   uniqueIV(plain.size());
   Block ctr = IV;
   Block x,temp;
 
+  cipher.push_back(IV);
   for (Block block : plain) {
     temp = aes->encrypt(ctr);
-    
+
     //converting counter to int to increment to next counter
     unsigned int ctrAsInt = 0;
     for (unsigned int i = 1; i <= ctr.size(); ++i) {
@@ -24,7 +25,7 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
       ctrAsInt += ctr[ctr.size() - i];
     }
     ctrAsInt++;
-    
+
     //converting new counter to block
     Block tempBlock;
     unsigned int tempInt = (ctrAsInt) % (1 << (32 * numWordsInBlock));
@@ -42,15 +43,19 @@ std::string CTRMode::encrypt(const std::string plaintxt) {
     cipher.push_back(x);
     x.clear();
   }
-  cipher.push_back(IV);
-  return blocksToText(cipher);
+
+  // Save cipher blocks to file.
+  saveBlocks("data/cipher", cipher);
 }
 
-std::string CTRMode::decrypt(const std::string ciphertxt) {
+std::string CTRMode::decrypt() {
+  // Load cipher blocks from file.
   std::vector<Block> plain;
-  std::vector<Block> cipher = textToBlocks(ciphertxt);
-  Block ctr = cipher.back();
-  cipher.pop_back();
+  std::vector<Block> cipher;
+  loadBlocks("data/cipher", &cipher);
+
+  Block ctr = cipher.front();
+  cipher.erase(cipher.begin());
   Block x,temp;
 
   for (Block block : cipher) {
@@ -73,7 +78,7 @@ std::string CTRMode::decrypt(const std::string ciphertxt) {
     }
     //counter updated to next counter for next round
     ctr = tempBlock;
-    
+
     for (unsigned int i = 0; i < block.size(); ++i) {
       x.push_back(temp[i] ^ block[i]);
     }
