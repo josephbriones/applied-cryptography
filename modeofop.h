@@ -62,7 +62,7 @@ class ModeOfOp {
   void pad(std::vector<Block> * blocks);
   void invPad(std::vector<Block> * blocks);
 
-  // Utility function for getting random bytes and words from /dev/random. The
+  // Utility function for getting random bytes and words from /dev/urandom. The
   // number of bytes or words to create is passed as input.
   std::vector<uint8_t> randBytes(const unsigned int numBytes);
   std::vector<uint32_t> randWords(const unsigned int numWords);

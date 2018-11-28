@@ -199,6 +199,10 @@ void ModeOfOp::invPad(std::vector<Block> * blocks) {
   blocks->pop_back();
   if (padAmount < maxPadding) {
     for (uint8_t i = 0; i < padAmount; ++i) {
+      if (lastBlock.back() != padAmount) {
+        // Bad padding detected. Fail without warning.
+        exit(EXIT_FAILURE);
+      }
       lastBlock.pop_back();
     }
     blocks->push_back(lastBlock);
@@ -208,8 +212,8 @@ void ModeOfOp::invPad(std::vector<Block> * blocks) {
 std::vector<uint8_t> ModeOfOp::randBytes(const unsigned int numBytes) {
   std::vector<uint8_t> rBytes;
 
-  // Open /dev/random and read words from it one at a time.
-  std::fstream devrand("/dev/random", std::fstream::in | std::fstream::binary);
+  // Open /dev/urandom and read words from it one at a time.
+  std::fstream devrand("/dev/urandom", std::fstream::in | std::fstream::binary);
   if (devrand) {
     for (unsigned int i = 0; i < numBytes; ++i) {
       uint8_t rByte = 0;
