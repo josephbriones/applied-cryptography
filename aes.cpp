@@ -1,6 +1,7 @@
 #include "aes.h"
 #include "algebra.h"
 
+// EXP37-C
 AES::AES(std::vector<uint32_t> * key) :
   key(key) {
   if (key->size() != 4 && key->size() != 6 && key->size() != 8) {
@@ -19,6 +20,7 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
 
   // Perform the forward AES cipher.
   addRoundKey(0);
+  // INT30-C
   for (unsigned int round = 1; round < (key->size() + 6); ++round) {
     subBytes();
     shiftRows();
@@ -31,6 +33,7 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
 
   // Unpack AES's state into the output block.
   std::vector<uint8_t> cipherBlock;
+  // INT30-C
   for (unsigned int col = 0; col < 4; ++col) {
     for (unsigned int row = 0; row < 4; ++row) {
       cipherBlock.push_back(state[row][col]);
@@ -42,6 +45,7 @@ std::vector<uint8_t> AES::encrypt(std::vector<uint8_t> plainBlock) {
 
 std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
   // Load the input block into AES's state.
+  // INT30-C
   for (unsigned int row = 0; row < 4; ++row) {
     for (unsigned int col = 0; col < 4; ++col) {
       state[row][col] = cipherBlock[row + 4*col];
@@ -50,6 +54,7 @@ std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
 
   // Perform the inverse AES cipher.
   addRoundKey(key->size() + 6);
+  // INT30-C
   for (unsigned int round = (key->size() + 6) - 1; round > 0; --round) {
     invShiftRows();
     invSubBytes();
@@ -62,6 +67,7 @@ std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
 
   // Unpack AES's state into the output block.
   std::vector<uint8_t> plainBlock;
+  // INT30-C
   for (unsigned int col = 0; col < 4; ++col) {
     for (unsigned int row = 0; row < 4; ++row) {
       plainBlock.push_back(state[row][col]);
@@ -72,6 +78,7 @@ std::vector<uint8_t> AES::decrypt(std::vector<uint8_t> cipherBlock) {
 }
 
 void AES::subBytes() {
+  // INT30-C
   for (unsigned int row = 0; row < 4; ++row) {
     for (unsigned int col = 0; col < 4; ++col) {
       state[row][col] = Algebra::sbox(state[row][col]);
@@ -80,6 +87,7 @@ void AES::subBytes() {
 }
 
 void AES::invSubBytes() {
+  // INT30-C
   for (unsigned int row = 0; row < 4; ++row) {
     for (unsigned int col = 0; col < 4; ++col) {
       state[row][col] = Algebra::invSbox(state[row][col]);
@@ -88,6 +96,7 @@ void AES::invSubBytes() {
 }
 
 void AES::shiftRows() {
+  // INT30-C
   for (unsigned int row = 0; row < 4; ++row) {
     uint8_t r[4] = {state[row][0], state[row][1], state[row][2], state[row][3]};
 
@@ -99,10 +108,12 @@ void AES::shiftRows() {
 }
 
 void AES::invShiftRows() {
+  // INT30-C
   for (unsigned int row = 0; row < 4; ++row) {
     uint8_t r[4] = {state[row][0], state[row][1], state[row][2], state[row][3]};
 
     // Cyclic shift each element 'row' elements to the right.
+    // INT30-C
     for (unsigned int col = 0; col < 4; ++col) {
       state[row][col] = r[(col - row + 4) % 4];
     }
@@ -110,6 +121,7 @@ void AES::invShiftRows() {
 }
 
 void AES::mixColumns() {
+  // INT30-C
   for (unsigned int col = 0; col < 4; ++col) {
     // Copy the current column into a temporary array of bytes.
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
@@ -127,6 +139,7 @@ void AES::mixColumns() {
 }
 
 void AES::invMixColumns() {
+  // INT30-C
   for (unsigned int col = 0; col < 4; ++col) {
     // Copy the current column into a temporary array of bytes.
     uint8_t s[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
@@ -154,7 +167,7 @@ void AES::invMixColumns() {
 void AES::addRoundKey(const unsigned int round) {
   // First, get the words in the key schedule for this round.
   std::array<uint32_t, 4> roundKeys = expandKey(round);
-
+  // INT30-C
   for (unsigned int col = 0; col < 4; ++col) {
     // Reconstruct a word from the 4 column bytes.
     uint8_t b[4] = {state[0][col], state[1][col], state[2][col], state[3][col]};
@@ -179,6 +192,7 @@ std::array<uint32_t, 4> AES::expandKey(const unsigned int round) {
   std::vector<uint32_t> keySchedule;
 
   // First, load all the words from the key into the key schedule.
+  // INT30-C
   for (unsigned int i = 0; i < key->size(); ++i) {
     keySchedule.push_back(key->at(i));
   }
@@ -197,6 +211,7 @@ std::array<uint32_t, 4> AES::expandKey(const unsigned int round) {
 
   // Extract the last 4 keys and return them.
   std::array<uint32_t, 4> roundKeys;
+  // INT30-C
   for (unsigned int i = 0; i < 4; ++i) {
     roundKeys[4 - (i + 1)] = keySchedule.back();
     keySchedule.pop_back();
@@ -214,12 +229,14 @@ uint32_t AES::subWord(const uint32_t w) {
   b[3] = (w & 0xff000000) >> 24;
 
   // Apply the S-box to each of the 4 bytes.
+  // INT30-C
   for (unsigned int i = 0; i < 4; ++i) {
     b[i] = Algebra::sbox(b[i]);
   }
 
   // Reconstruct a word from the 4 bytes.
   uint32_t result = b[3];
+  // INT30-C
   for (unsigned int i = 1; i < 4; ++i) {
     result = (result << 8) ^ b[4 - (i + 1)];
   }
@@ -235,6 +252,7 @@ uint32_t AES::rotWord(const uint32_t w) {
 uint32_t AES::rcon(const uint32_t r) {
   // Raise x (i.e., {02} = 2) to the power r - 1.
   uint8_t b = 2;
+  // INT30-C
   for (unsigned int i = 1; i <= r - 1; ++i) {
     b = Algebra::xtimes(b);
   }

@@ -7,6 +7,7 @@
 
 #include "aes.h"
 
+// DCL60-CPP
 class ModeOfOp {
  public:
   // Constructor which takes as input its block cipher's # of words per block

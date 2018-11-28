@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 
+// DCL60-CPP
 class Algebra {
  public:
   // Given a byte (uint8_t) b expressing a polynomial b(x) in GF(2^8), this

@@ -6,6 +6,7 @@
 #include "ctrmode.h"
 #include "ofbmode.h"
 
+// EXP37-C
 int main(int argc, char* argv[]) {
   // Argument checking.
   if (argc != 4) {
@@ -15,11 +16,13 @@ int main(int argc, char* argv[]) {
   }
 
   // Argument processing.
+  // STR50-CPP
   std::string text = argv[1];
   unsigned int numWordsInKey = std::stoul(argv[2]);
   std::string modeStr = argv[3];
 
   // Instantiate the AES and mode of operation objects.
+  // MEM53-CPP, OOP53-CPP
   ModeOfOp * mode;
   if (modeStr.compare("cbc") == 0) {
     mode = new CBCMode(4, numWordsInKey);
@@ -39,10 +42,13 @@ int main(int argc, char* argv[]) {
   std::cout << "Encrypting..." << std::endl;
   mode->encrypt(text);
   std::cout << "Decrypting..." << std::endl;
+
+  // STR50-CPP
   std::string plainText = mode->decrypt();
 
   assert(text.compare(plainText) == 0);
   std::cout << "Original text and decrypted plaintext match.\n" << std::endl;
 
+  // MEM51-CPP, MEM53-CPP, DCL57-CPP
   delete mode;
 }

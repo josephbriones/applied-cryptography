@@ -1,12 +1,14 @@
 #include "ofbmode.h"
 
+// EXP37-C
 OFBMode::OFBMode(unsigned int numWordsInBlock, unsigned int numWordsInKey) :
   ModeOfOp(numWordsInBlock, numWordsInKey) {
   uniqueIV(1);
 }
 
+// OOP52-CPP
 OFBMode::~OFBMode() {}
-
+// EXP40-C
 void OFBMode::encrypt(const std::string plaintxt) {
   std::vector<Block> cipher;
   std::vector<Block> plain = textToBlocks(plaintxt);
@@ -17,6 +19,7 @@ void OFBMode::encrypt(const std::string plaintxt) {
   for (Block block : plain) {
     temp = aes->encrypt(temp);
     usedIVs.insert(temp);
+    // CTR50-CPP, INT30-C
     for (unsigned int i = 0; i < block.size(); ++i) {
       x.push_back(temp[i] ^ block[i]);
     }
@@ -41,12 +44,13 @@ std::string OFBMode::decrypt() {
   for (Block block : cipher) {
     temp = aes->encrypt(temp);
     usedIVs.insert(temp);
+    // CTR50-CPP, INT30-C
     for (unsigned int i = 0; i < block.size(); ++i) {
       x.push_back(temp[i] ^ block[i]);
     }
     plain.push_back(x);
     x.clear();
   }
-
+  // STR50-CPP
   return blocksToText(plain);
 }
